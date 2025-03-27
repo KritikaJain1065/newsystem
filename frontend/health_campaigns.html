@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Health Campaigns & Yojnas | HealthCare Partners</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow-x: hidden;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .live-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(100, 181, 246, 0.2);
+            animation: float 15s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.2;
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px) rotate(90deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-40px) translateX(20px) rotate(180deg);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(-20px) translateX(10px) rotate(270deg);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(0) translateX(0) rotate(360deg);
+                opacity: 0.2;
+            }
+        }
+
+        header {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.5rem 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #e0e0e0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #4285f4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: #f1f3f4;
+            color: #4285f4;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e8eaed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/api/placeholder/1200/400') center/cover no-repeat;
+            color: white;
+            text-align: center;
+            padding: 5rem 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        .page-header p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Filter Section Styles */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            flex: 0.7;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #4285f4;
+        }
+
+        .search-box button {
+            padding: 0.8rem 1.5rem;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .search-box button:hover {
+            background-color: #3367d6;
+        }
+
+        .filter-options {
+            flex: 0.3;
+            margin-left: 1rem;
+        }
+
+        .filter-options select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+            cursor: pointer;
+        }
+
+        .filter-options select:focus {
+            border-color: #4285f4;
+        }
+
+        /* Campaign Cards Styles - Updated */
+        .campaigns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .campaign-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            border: 1px solid #f0f0f0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campaign-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .campaign-banner {
+            position: relative;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .campaign-icon {
+            font-size: 3rem;
+            color: white;
+            animation: pulseIcon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .campaign-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .campaign-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campaign-content h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .campaign-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-item i {
+            margin-right: 5px;
+            color: #4285f4;
+        }
+
+        .campaign-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .key-benefits, .eligibility, .application {
+            margin-bottom: 1.5rem;
+        }
+
+        .key-benefits h3, .eligibility h3, .application h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.7rem;
+            color: #4285f4;
+        }
+
+        .key-benefits ul, .application ul, .application ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .key-benefits li, .application li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .campaign-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        /* Floating Campaign Notification */
+        .floating-notification {
+            position: fixed;
+            bottom: 90px;
+            left: 30px;
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+            padding: 1.2rem;
+            z-index: 100;
+            transform: translateY(200%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 5px solid #4285f4;
+            opacity: 0.95;
+        }
+
+        .floating-notification.active {
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .notification-close:hover {
+            color: #333;
+        }
+
+        .notification-body {
+            margin-bottom: 1rem;
+        }
+
+        .notification-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Featured Campaign Banner */
+        .featured-campaign {
+            position: relative;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f9f9ff, #f0f4ff);
+            border-radius: 15px;
+            margin-bottom: 3rem;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #4285f4;
+        }
+
+        .featured-campaign::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(66, 133, 244, 0), rgba(66, 133, 244, 0.1), rgba(66, 133, 244, 0));
+            z-index: 1;
+            transform: translateX(-100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+            }
+            20%, 100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .featured-content {
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            gap: 2rem;
+        }
+
+        .featured-icon {
+            flex: 0 0 100px;
+            height: 100px;
+            background-color: #4285f4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+        }
+
+        .featured-info {
+            flex: 1;
+        }
+
+        .featured-badge {
+            display: inline-block;
+            background-color: #4285f4;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .featured-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: #333;
+        }
+
+        .featured-cta {
+            margin-left: auto;
+            align-self: center;
+        }
+
+        /* Upcoming Events Section */
+        .upcoming-events {
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 3rem 0;
+            border: 1px solid rgba(66, 133, 244, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upcoming-events::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(66, 133, 244, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 10px;
+        }
+
+        .section-heading i {
+            font-size: 1.5rem;
+            color: #4285f4;
+        }
+
+        .section-heading h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin: 0;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: #4285f4;
+        }
+
+        .event-date {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .event-date i {
+            color: #4285f4;
+        }
+
+        .event-title {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-location {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .event-location i {
+            color: #ea4335;
+        }
+
+        .event-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .event-link {
+            font-size: 0.9rem;
+            color: #4285f4;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+
+        .event-link:hover {
+            color: #3367d6;
+            text-decoration: underline;
+        }
+
+        .refresh-section {
+            text-align: center;
+            margin: 2rem 0 1rem;
+        }
+
+        .refresh-btn {
+            background-color: transparent;
+            color: #4285f4;
+            border: 1px solid #4285f4;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .refresh-btn:hover {
+            background-color: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .refresh-btn i {
+            font-size: 0.8rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .featured-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .featured-cta {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+            
+            .floating-notification {
+                width: 300px;
+                bottom: 70px;
+                left: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Section divider styling */
+        .section-divider {
+            text-align: center;
+            margin: 4rem 0 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section-divider:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #4285f4, transparent);
+        }
+
+        .section-divider h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-divider p {
+            max-width: 700px;
+            margin: 0 auto;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Adjust spacing between components */
+        .upcoming-events {
+            margin-top: 2rem;
+        }
+
+        .helplines-section {
+            margin: 3rem 0 1rem;
+        }
+
+        .featured-campaign {
+            margin: 3rem 0;
+        }
+
+        /* Additional smooth transition for the campaigns grid */
+        .campaigns-grid {
+            margin-top: 3rem;
+            transition: all 0.5s ease;
+        }
+
+        /* Add a subtle background pattern for different sections */
+        .upcoming-events {
+            position: relative;
+            overflow: hidden;
+        }
+        .upcoming-events:before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(66, 133, 244, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Live Background -->
+    <div class="live-bg" id="live-bg"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="logo-icon">⚕️</span> HealthCare Partners
+            </div>
+            <ul class="nav-links">
+                <li><a href="main_websitepage.html">Home</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Doctors</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="final_guestpage.html">Emergency Service</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <h1>Indian Health Campaigns & Yojnas</h1>
+        <p>Discover government healthcare initiatives designed to improve access to quality healthcare for all citizens. Learn about eligibility, benefits, and how to apply.</p>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search campaigns...">
+                <button id="search-btn"><i class="fas fa-search"></i> Search</button>
+            </div>
+            <div class="filter-options">
+                <select id="category-filter">
+                    <option value="all">All Categories</option>
+                    <option value="insurance">Health Insurance</option>
+                    <option value="maternal">Maternal Health</option>
+                    <option value="child">Child Health</option>
+                    <option value="elderly">Elderly Care</option>
+                    <option value="disease">Disease Control</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Upcoming Health Events Section - Moved to the top -->
+        <div class="upcoming-events">
+            <div class="section-heading">
+                <i class="fas fa-calendar-check"></i>
+                <h2>Upcoming Health Camps & Events</h2>
+            </div>
+            <div class="events-grid">
+                <div class="event-card">
+                    <div class="event-date"><i class="fas fa-calendar-alt"></i> August 15-20, 2025</div>
+                    <h3 class="event-title">Mission Indradhanush Immunization Drive</h3>
+                    <div class="event-location"><i class="fas fa-map-marker-alt"></i> Nationwide at PHCs</div>
+                    <p class="event-desc">Special vaccination camp for children under 2 years and pregnant women. All essential vaccines available.</p>
+                    <a href="#" class="event-link">Find nearest center <i class="fas fa-chevron-right"></i></a>
+                </div>
+                <div class="event-card">
+                    <div class="event-date"><i class="fas fa-calendar-alt"></i> September 9, 2025</div>
+                    <h3 class="event-title">Pradhan Mantri Surakshit Matritva Checkup Day</h3>
+                    <div class="event-location"><i class="fas fa-map-marker-alt"></i> All Government Hospitals</div>
+                    <p class="event-desc">Free antenatal checkups for all pregnant women with specialized care for high-risk pregnancies.</p>
+                    <a href="#" class="event-link">Register now <i class="fas fa-chevron-right"></i></a>
+                </div>
+                <div class="event-card">
+                    <div class="event-date"><i class="fas fa-calendar-alt"></i> October 2-7, 2025</div>
+                    <h3 class="event-title">Ayushman Bharat Health & Wellness Festival</h3>
+                    <div class="event-location"><i class="fas fa-map-marker-alt"></i> Major Cities</div>
+                    <p class="event-desc">Free health checkups, awareness sessions, and on-spot registration for health schemes.</p>
+                    <a href="#" class="event-link">View details <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+            <div class="refresh-section">
+                <button class="refresh-btn"><i class="fas fa-sync-alt"></i> Show more events</button>
+            </div>
+        </div>
+
+        <!-- Health Helplines Section - Moved up -->
+        <div class="helplines-section">
+            <h2>Important Health Helplines</h2>
+            <div class="helplines-grid">
+                <div class="helpline-card">
+                    <div class="helpline-icon">📞</div>
+                    <h3>National Health Helpline</h3>
+                    <p class="helpline-number">1800-180-1104</p>
+                </div>
+                <div class="helpline-card">
+                    <div class="helpline-icon">🚑</div>
+                    <h3>Emergency Ambulance</h3>
+                    <p class="helpline-number">108</p>
+                </div>
+                <div class="helpline-card">
+                    <div class="helpline-icon">💊</div>
+                    <h3>COVID-19 Helpline</h3>
+                    <p class="helpline-number">1075</p>
+                </div>
+                <div class="helpline-card">
+                    <div class="helpline-icon">👶</div>
+                    <h3>Child Health Helpline</h3>
+                    <p class="helpline-number">1098</p>
+                </div>
+                <div class="helpline-card">
+                    <div class="helpline-icon">🤰</div>
+                    <h3>Maternal Health</h3>
+                    <p class="helpline-number">104</p>
+                </div>
+                <div class="helpline-card">
+                    <div class="helpline-icon">🧠</div>
+                    <h3>Mental Health Helpline</h3>
+                    <p class="helpline-number">1800-599-0019</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section divider with heading -->
+        <div class="section-divider">
+            <h2>Government Health Campaigns & Yojnas</h2>
+            <p>Explore key government healthcare initiatives designed to improve access to healthcare for citizens across India</p>
+        </div>
+
+        <!-- Featured Campaign Banner - Moved down -->
+        <div class="featured-campaign">
+            <div class="featured-content">
+                <div class="featured-icon">🏥</div>
+                <div class="featured-info">
+                    <span class="featured-badge">Featured Campaign</span>
+                    <h3>Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)</h3>
+                    <p>The world's largest health insurance scheme provides coverage up to ₹5 lakhs per family per year. Check your eligibility and apply today for cashless healthcare benefits.</p>
+                </div>
+                <div class="featured-cta">
+                    <a href="https://pmjay.gov.in/" target="_blank" class="btn btn-primary">Check Eligibility</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaigns Grid -->
+        <div class="campaigns-grid">
+            <!-- Ayushman Bharat PM-JAY -->
+            <div class="campaign-card" data-category="insurance">
+                <div class="campaign-banner" style="background-color: #4285f4;">
+                    <div class="campaign-icon">🏥</div>
+                    <span class="campaign-badge">Health Insurance</span>
+                </div>
+                <div class="campaign-content">
+                    <h2>Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)</h2>
+                    <div class="campaign-details">
+                        <div class="detail-item"><i class="fas fa-users"></i> Target: Economically vulnerable families</div>
+                        <div class="detail-item"><i class="fas fa-rupee-sign"></i> Coverage: Up to ₹5 lakhs per family per year</div>
+                    </div>
+                    <p>Provides health insurance coverage for secondary and tertiary care hospitalization to poor and vulnerable families. It's the world's largest health insurance scheme fully financed by the government.</p>
+                    <div class="key-benefits">
+                        <h3>Key Benefits:</h3>
+                        <ul>
+                            <li>Cashless and paperless access to quality healthcare services</li>
+                            <li>Covers hospitalization expenses including pre and post hospitalization</li>
+                            <li>Includes 3 days of pre-hospitalization and 15 days post-hospitalization expenses</li>
+                            <li>All pre-existing conditions covered from day one</li>
+                            <li>No restriction on family size, age or gender</li>
+                        </ul>
+                    </div>
+                    <div class="eligibility">
+                        <h3>Eligibility:</h3>
+                        <p>Families identified based on deprivation and occupational criteria as per SECC database for rural and urban areas. The scheme covers approximately 10.74 crore poor and vulnerable families.</p>
+                    </div>
+                    <div class="application">
+                        <h3>How to Apply:</h3>
+                        <p>Visit your nearest Ayushman Bharat Kendra, Common Service Centre (CSC), or follow these steps:</p>
+                        <ol>
+                            <li>Check eligibility by calling toll-free number 14555 or visiting <a href="https://pmjay.gov.in/" target="_blank">PM-JAY portal</a></li>
+                            <li>Visit any empanelled hospital with required documents (Aadhaar card, ration card, etc.)</li>
+                            <li>Get verified and receive e-card</li>
+                        </ol>
+                    </div>
+                    <div class="campaign-actions">
+                        <a href="https://pmjay.gov.in/" target="_blank" class="btn btn-primary">Official Website</a>
+                        <a href="https://pmjay.gov.in/sites/default/files/2018-07/English_brochure.pdf" target="_blank" class="btn btn-secondary">Download Brochure</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- National Health Mission -->
+            <div class="campaign-card" data-category="disease">
+                <div class="campaign-banner" style="background-color: #34a853;">
+                    <div class="campaign-icon">🩺</div>
+                    <span class="campaign-badge">Healthcare Infrastructure</span>
+                </div>
+                <div class="campaign-content">
+                    <h2>National Health Mission (NHM)</h2>
+                    <div class="campaign-details">
+                        <div class="detail-item"><i class="fas fa-users"></i> Target: All citizens with focus on rural areas</div>
+                        <div class="detail-item"><i class="fas fa-clinic-medical"></i> Type: Primary healthcare infrastructure</div>
+                    </div>
+                    <p>A flagship program launched by the Government of India to strengthen public health systems and provide accessible, affordable, and quality healthcare to rural and urban populations, with special focus on vulnerable groups.</p>
+                    <div class="key-benefits">
+                        <h3>Key Components:</h3>
+                        <ul>
+                            <li>National Rural Health Mission (NRHM) for rural areas</li>
+                            <li>National Urban Health Mission (NUHM) for urban areas</li>
+                            <li>Reproductive, Maternal, Newborn, Child and Adolescent Health (RMNCH+A)</li>
+                            <li>Control of communicable and non-communicable diseases</li>
+                            <li>Strengthening health systems and infrastructure</li>
+                        </ul>
+                    </div>
+                    <div class="eligibility">
+                        <h3>Services Available:</h3>
+                        <p>All citizens can access NHM services through public health facilities like Sub-Centers, Primary Health Centers (PHCs), Community Health Centers (CHCs), District Hospitals, and Urban Primary Health Centers.</p>
+                    </div>
+                    <div class="application">
+                        <h3>How to Access:</h3>
+                        <p>Visit your nearest public health facility. For specific programs:</p>
+                        <ul>
+                            <li>Dial 108 for emergency medical services</li>
+                            <li>Contact local ASHA (Accredited Social Health Activist) worker for community-level services</li>
+                            <li>Visit nearest health center for routine healthcare needs</li>
+                        </ul>
+                    </div>
+                    <div class="campaign-actions">
+                        <a href="https://nhm.gov.in/" target="_blank" class="btn btn-primary">Official Website</a>
+                        <a href="https://nhm.gov.in/index1.php?lang=1&level=1&sublinkid=969&lid=49" target="_blank" class="btn btn-secondary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pradhan Mantri Surakshit Matritva Abhiyan -->
+            <div class="campaign-card" data-category="maternal">
+                <div class="campaign-banner" style="background-color: #ea4335;">
+                    <div class="campaign-icon">🤰</div>
+                    <span class="campaign-badge">Maternal Health</span>
+                </div>
+                <div class="campaign-content">
+                    <h2>Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA)</h2>
+                    <div class="campaign-details">
+                        <div class="detail-item"><i class="fas fa-female"></i> Target: Pregnant women</div>
+                        <div class="detail-item"><i class="fas fa-calendar-check"></i> Services: Free checkups on 9th of every month</div>
+                    </div>
+                    <p>A nationwide initiative to provide free comprehensive and quality antenatal care to pregnant women on the 9th of every month, ensuring healthy pregnancies and safe deliveries.</p>
+                    <div class="key-benefits">
+                        <h3>Key Services:</h3>
+                        <ul>
+                            <li>Free comprehensive antenatal check-ups by gynecologists/physicians</li>
+                            <li>Essential pregnancy tests and screenings</li>
+                            <li>Identification and management of high-risk pregnancies</li>
+                            <li>Counseling on birth preparedness and complications</li>
+                            <li>Early detection of pregnancy complications</li>
+                        </ul>
+                    </div>
+                    <div class="eligibility">
+                        <h3>Eligibility:</h3>
+                        <p>All pregnant women in their 2nd and 3rd trimesters. Special attention is given to high-risk pregnancies.</p>
+                    </div>
+                    <div class="application">
+                        <h3>How to Access:</h3>
+                        <p>Visit the nearest government health facility (PHC, CHC, District Hospital) on the 9th of every month. You can also:</p>
+                        <ul>
+                            <li>Register through local ASHA or ANM worker</li>
+                            <li>Call the helpline at 104 for more information</li>
+                            <li>Download the PMSMA app for registration and reminders</li>
+                        </ul>
+                    </div>
+                    <div class="campaign-actions">
+                        <a href="https://pmsma.nhp.gov.in/" target="_blank" class="btn btn-primary">Official Website</a>
+                        <a href="https://pmsma.nhp.gov.in/about-scheme/" target="_blank" class="btn btn-secondary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission Indradhanush -->
+            <div class="campaign-card" data-category="child">
+                <div class="campaign-banner" style="background-color: #fbbc05;">
+                    <div class="campaign-icon">💉</div>
+                    <span class="campaign-badge">Child Health</span>
+                </div>
+                <div class="campaign-content">
+                    <h2>Mission Indradhanush</h2>
+                    <div class="campaign-details">
+                        <div class="detail-item"><i class="fas fa-baby"></i> Target: Children under 2 years & pregnant women</div>
+                        <div class="detail-item"><i class="fas fa-syringe"></i> Focus: Complete immunization coverage</div>
+                    </div>
+                    <p>A nationwide immunization program aimed at protecting children against vaccine-preventable diseases. The mission aims to achieve full immunization coverage for all children and pregnant women.</p>
+                    <div class="key-benefits">
+                        <h3>Vaccines Provided:</h3>
+                        <ul>
+                            <li>Protection against 12 Vaccine-Preventable Diseases</li>
+                            <li>Diphtheria, Whooping Cough, Tetanus, Polio</li>
+                            <li>Tuberculosis, Hepatitis B, Meningitis</li>
+                            <li>Pneumonia, Japanese Encephalitis, Measles, Rubella</li>
+                            <li>Rotavirus diarrhea (in select states)</li>
+                        </ul>
+                    </div>
+                    <div class="eligibility">
+                        <h3>Eligibility:</h3>
+                        <p>All children under 2 years of age and pregnant women who have missed regular vaccinations.</p>
+                    </div>
+                    <div class="application">
+                        <h3>How to Access:</h3>
+                        <p>Services are provided free of cost at government health facilities. To access:</p>
+                        <ul>
+                            <li>Visit your nearest health center on immunization days</li>
+                            <li>Contact local ASHA worker for information on upcoming immunization sessions</li>
+                            <li>Call the National Health Helpline at 1800-180-1104 for details</li>
+                        </ul>
+                    </div>
+                    <div class="campaign-actions">
+                        <a href="https://www.nhp.gov.in/mission-indradhanush1_pg" target="_blank" class="btn btn-primary">Official Website</a>
+                        <a href="https://main.mohfw.gov.in/sites/default/files/5628564789562315.pdf" target="_blank" class="btn btn-secondary">Download Schedule</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rashtriya Swasthya Bima Yojana -->
+            <div class="campaign-card" data-category="insurance">
+                <div class="campaign-banner" style="background-color: #673ab7;">
+                    <div class="campaign-icon">💳</div>
+                    <span class="campaign-badge">Health Insurance</span>
+                </div>
+                <div class="campaign-content">
+                    <h2>Rashtriya Swasthya Bima Yojana (RSBY)</h2>
+                    <div class="campaign-details">
+                        <div class="detail-item"><i class="fas fa-users"></i> Target: BPL families</div>
+                        <div class="detail-item"><i class="fas fa-rupee-sign"></i> Coverage: Up to ₹30,000 per family per annum</div>
+                    </div>
+                    <p>A health insurance scheme providing cashless coverage for hospitalization expenses to Below Poverty Line (BPL) families and other unorganized sector workers.</p>
+                    <div class="key-benefits">
+                        <h3>Key Benefits:</h3>
+                        <ul>
+                            <li>Cashless treatment at network hospitals</li>
+                            <li>Coverage for most diseases requiring hospitalization</li>
+                            <li>Transportation costs of up to ₹1,000 per year</li>
+                            <li>Pre-existing conditions covered from day one</li>
+                            <li>Smart card-based paperless and cashless transactions</li>
+                        </ul>
+                    </div>
+                    <div class="eligibility">
+                        <h3>Eligibility:</h3>
+                        <p>BPL families and workers in the unorganized sector as identified by the latest available BPL list. A premium of ₹30 per family per annum is charged at the time of enrollment.</p>
+                    </div>
+                    <div class="application">
+                        <h3>How to Apply:</h3>
+                        <p>Enrollment is done through enrollment stations set up at various locations. To apply:</p>
+                        <ol>
+                            <li>Check if your name is in the BPL list with your local authorities</li>
+                            <li>Visit enrollment station with proof of identity and BPL status</li>
+                            <li>Pay ₹30 as registration fee</li>
+                            <li>Get photographed and biometric data collected</li>
+                            <li>Receive RSBY smart card</li>
+                        </ol>
+                    </div>
+                    <div class="campaign-actions">
+                        <a href="https://www.india.gov.in/spotlight/rashtriya-swasthya-bima-yojana" target="_blank" class="btn btn-primary">Official Website</a>
+                        <a href="https://www.india.gov.in/sites/upload_files/npi/files/cphospitals.pdf" target="_blank" class="btn btn-secondary">Network Hospitals</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- National AYUSH Mission -->
+            <div class="campaign-card" data-category="disease">
+                <div class="campaign-banner" style="background-color: #009688;">
+                    <div class="campaign-icon">🌿</div>
+                    <span class="campaign-badge">Traditional Medicine</span>
+                </div>
+                <div class="campaign-content">
+                    <h2>National AYUSH Mission</h2>
+                    <div class="campaign-details">
+                        <div class="detail-item"><i class="fas fa-users"></i> Target: All citizens</div>
+                        <div class="detail-item"><i class="fas fa-leaf"></i> Focus: Traditional healthcare systems</div>
+                    </div>
+                    <p>A centrally sponsored scheme to promote AYUSH (Ayurveda, Yoga, Unani, Siddha, and Homeopathy) medical systems through cost-effective AYUSH services and strengthening of educational systems.</p>
+                    <div class="key-benefits">
+                        <h3>Key Components:</h3>
+                        <ul>
+                            <li>Establishment of AYUSH hospitals and dispensaries</li>
+                            <li>Supply of essential AYUSH medicines</li>
+                            <li>Support for AYUSH educational institutions</li>
+                            <li>Setting up of AYUSH wellness centers</li>
+                            <li>Cultivation of medicinal plants</li>
+                        </ul>
+                    </div>
+                    <div class="eligibility">
+                        <h3>Services Available:</h3>
+                        <p>All citizens can access AYUSH services through AYUSH hospitals, dispensaries, and wellness centers across the country.</p>
+                    </div>
+                    <div class="application">
+                        <h3>How to Access:</h3>
+                        <p>Visit your nearest AYUSH facility for consultations and treatments. To find AYUSH centers:</p>
+                        <ul>
+                            <li>Check the directory on the AYUSH Ministry website</li>
+                            <li>Contact local health department for AYUSH facilities in your area</li>
+                            <li>Visit integrated AYUSH departments at district hospitals</li>
+                        </ul>
+                    </div>
+                    <div class="campaign-actions">
+                        <a href="https://main.ayush.gov.in/about-us/about-the-ministry/nam/" target="_blank" class="btn btn-primary">Official Website</a>
+                        <a href="https://namayush.gov.in/" target="_blank" class="btn btn-secondary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Notification -->
+    <div class="floating-notification" id="floating-notification">
+        <div class="notification-header">
+            <span class="notification-title">New Health Program Alert!</span>
+            <button class="notification-close" id="notification-close">&times;</button>
+        </div>
+        <div class="notification-body">
+            <p>The National Digital Health Mission has been launched! Create your Health ID now for seamless access to your digital health records across providers.</p>
+        </div>
+        <div class="notification-actions">
+            <a href="https://healthid.ndhm.gov.in/" target="_blank" class="btn btn-primary btn-sm">Create Health ID</a>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>HealthCare Partners</h3>
+                <p>Providing quality healthcare services with a patient-centered approach for over 20 years.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="main_websitepage.html">Home</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Find a Doctor</a></li>
+                    <li><a href="#">Patient Portal</a></li>
+                    <li><a href="#">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Government Links</h3>
+                <ul>
+                    <li><a href="https://www.mohfw.gov.in/" target="_blank">Ministry of Health</a></li>
+                    <li><a href="https://pmjay.gov.in/" target="_blank">PM-JAY Portal</a></li>
+                    <li><a href="https://www.nhm.gov.in/" target="_blank">National Health Mission</a></li>
+                    <li><a href="https://pmsma.nhp.gov.in/" target="_blank">PMSMA</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li>123 Health Avenue</li>
+                    <li>Wellness City, WC 12345</li>
+                    <li>Phone: (123) 456-7890</li>
+                    <li>Email: info@healthcarepartners.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HealthCare Partners. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Live background setup
+            const liveBg = document.getElementById('live-bg');
+            const colors = ['rgba(100, 181, 246, 0.2)', 'rgba(77, 208, 225, 0.2)', 'rgba(77, 182, 172, 0.2)'];
+            
+            // Create bubbles
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                
+                // Random properties
+                const size = Math.random() * 100 + 50;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const colorIndex = Math.floor(Math.random() * colors.length);
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${posX}%`;
+                bubble.style.top = `${posY}%`;
+                bubble.style.animationDelay = `${delay}s`;
+                bubble.style.background = colors[colorIndex];
+                
+                liveBg.appendChild(bubble);
+            }
+
+            // Campaign card animation on scroll
+            const campaignCards = document.querySelectorAll('.campaign-card');
+            const animateCards = () => {
+                campaignCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.animation = `fadeIn 0.5s forwards`;
+                    }, index * 200);
+                });
+            };
+            
+            // Trigger the animation when the page loads
+            animateCards();
+
+            // Back to top button functionality
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Search and filter functionality
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const categoryFilter = document.getElementById('category-filter');
+            
+            const filterCampaigns = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+                
+                campaignCards.forEach(card => {
+                    const cardTitle = card.querySelector('h2').textContent.toLowerCase();
+                    const cardContent = card.querySelector('.campaign-content').textContent.toLowerCase();
+                    const cardCategory = card.getAttribute('data-category');
+                    
+                    const matchesSearch = cardTitle.includes(searchTerm) || cardContent.includes(searchTerm);
+                    const matchesCategory = selectedCategory === 'all' || cardCategory === selectedCategory;
+                    
+                    if (matchesSearch && matchesCategory) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            };
+            
+            searchBtn.addEventListener('click', filterCampaigns);
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    filterCampaigns();
+                }
+            });
+            categoryFilter.addEventListener('change', filterCampaigns);
+
+            // Floating notification functionality
+            const floatingNotification = document.getElementById('floating-notification');
+            const notificationClose = document.getElementById('notification-close');
+            
+            // Show notification after 5 seconds instead of 3
+            setTimeout(() => {
+                floatingNotification.classList.add('active');
+            }, 5000);
+            
+            notificationClose.addEventListener('click', () => {
+                floatingNotification.classList.remove('active');
+                // Store in session storage that notification was closed
+                sessionStorage.setItem('notificationClosed', 'true');
+            });
+            
+            // Check if notification was previously closed
+            if (sessionStorage.getItem('notificationClosed') === 'true') {
+                floatingNotification.style.display = 'none';
+            }
+
+            // Add scroll event to hide notification when user scrolls down significantly
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 1200) { // Hide when scrolled far down
+                    if (floatingNotification.classList.contains('active')) {
+                        floatingNotification.classList.remove('active');
+                    }
+                } else if (window.pageYOffset > 300 && !sessionStorage.getItem('notificationClosed')) {
+                    // Show again when scrolled back up (unless manually closed)
+                    floatingNotification.classList.add('active');
+                }
+            });
+
+            // Refresh events button functionality 
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check"></i> No more events available';
+                    this.disabled = true;
+                    this.style.opacity = '0.7';
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html> 

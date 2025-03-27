@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediAssist - Professional Medical Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1976D2;
+            --primary-light: #BBDEFB;
+            --primary-dark: #0D47A1;
+            --secondary-color: #00C853;
+            --error-color: #FF3D00;
+            --text-dark: #333333;
+            --text-light: #757575;
+            --background-color: #F5F7FA;
+            --card-color: #FFFFFF;
+            --border-radius: 16px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --message-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+        }
+        
+        .chatbot-container {
+            width: 90%;
+            max-width: 450px;
+            height: 85vh;
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chatbot-header {
+            padding: 18px 22px;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chatbot-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        .header-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        .chatbot-header img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.8; }
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px 22px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--background-color);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2393a4ba' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            border-radius: 18px;
+            word-break: break-word;
+            position: relative;
+            box-shadow: var(--message-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .message:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bot-message {
+            background: var(--card-color);
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .user-message {
+            background: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            position: absolute;
+            bottom: -18px;
+            opacity: 0.7;
+        }
+        
+        .bot-message .message-time {
+            left: 5px;
+            color: var(--text-light);
+        }
+        
+        .user-message .message-time {
+            right: 5px;
+            color: var(--text-light);
+        }
+        
+        .chatbot-input-container {
+            background: var(--card-color);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 8px 0;
+        }
+        
+        .chatbot-input {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--card-color);
+            gap: 10px;
+        }
+        
+        #message-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1px solid #E0E0E0;
+            border-radius: 30px;
+            outline: none;
+            font-size: 0.95rem;
+            background: var(--background-color);
+            transition: all 0.3s ease;
+        }
+        
+        #message-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+        
+        #message-input::placeholder {
+            color: var(--text-light);
+        }
+        
+        .chatbot-input button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .button-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .voice-btn .button-icon {
+            background: rgba(25, 118, 210, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .voice-btn:hover .button-icon {
+            background: rgba(25, 118, 210, 0.2);
+        }
+        
+        .send-btn .button-icon {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .send-btn:hover .button-icon {
+            background: var(--primary-dark);
+            transform: translateX(2px);
+        }
+        
+        .emergency-btn-container {
+            padding: 10px 20px 20px;
+            background: var(--card-color);
+        }
+        
+        .emergency-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        
+        .emergency-btn:hover {
+            background: #D32F2F;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 61, 0, 0.3);
+        }
+        
+        .emergency-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(255, 61, 0, 0.3);
+        }
+        
+        .youtube-video {
+            width: 100%;
+            margin: 12px 0 5px;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 180px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 10px 0;
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            width: fit-content;
+        }
+        
+        .loading span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            animation: typing 1.2s infinite alternate;
+        }
+        
+        .loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-5px) scale(1.2); }
+        }
+        
+        .emergency-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .emergency-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .emergency-content h2 {
+            color: var(--error-color);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .emergency-content p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        
+        .map-container {
+            height: 200px;
+            margin: 15px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        #location-status {
+            padding: 8px 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-row button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+        }
+        
+        .cancel-btn {
+            background: #f1f1f1;
+            color: var(--text-dark);
+        }
+        
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Markdown-style formatting */
+        .bot-message strong,
+        .bot-message b {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .bot-message a {
+            color: var(--primary-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--primary-color);
+        }
+        
+        .bot-message a:hover {
+            border-bottom: 1px solid var(--primary-color);
+        }
+        
+        .bot-message ul, 
+        .bot-message ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .bot-message li {
+            margin-bottom: 5px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .chatbot-container {
+                width: 95%;
+                height: 90vh;
+                border-radius: 20px;
+            }
+            
+            .emergency-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .chatbot-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .emergency-btn {
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Scroll bar styling */
+        .chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animation for new messages */
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message {
+            animation: messageIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="header-left">
+                <img src="https://img.freepik.com/free-vector/medical-healthcare-cross-symbol-design_1017-38167.jpg" alt="Medical Logo">
+                <div>
+                    <h2>MediAssist</h2>
+                    <div class="header-subtitle">Your Medical Assistant</div>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Online</span>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="messages">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="chatbot-input-container">
+            <div class="chatbot-input">
+                <input type="text" id="message-input" placeholder="Type your symptoms or questions...">
+                <button class="voice-btn" id="voice-btn">
+                    <div class="button-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                </button>
+                <button class="send-btn" id="send-btn">
+                    <div class="button-icon">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="emergency-btn-container">
+            <button class="emergency-btn" id="emergency-btn">
+                <i class="fas fa-ambulance"></i>
+                EMERGENCY ASSISTANCE
+            </button>
+        </div>
+    </div>
+
+    <div class="emergency-overlay" id="emergency-overlay">
+        <div class="emergency-content">
+            <h2>Emergency Assistance</h2>
+            <p>We can send an ambulance to your current location. Do you confirm this request?</p>
+            <div class="map-container" id="map"></div>
+            <p id="location-status">Detecting your location...</p>
+            <div class="btn-row">
+                <button class="cancel-btn" id="cancel-emergency">Cancel</button>
+                <button class="confirm-btn" id="confirm-emergency">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let userLocation = null;
+        let map = null;
+        let marker = null;
+        let isListening = false;
+        let recognition = null;
+
+        // Backend URL
+        const BACKEND_URL = 'http://localhost:3000'; // Connect to the Node.js server
+
+        // Initialize the chatbot when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initChatbot();
+            setupSpeechRecognition();
+            animateInputPlaceholder();
+        });
+
+        // Initialize the chatbot with a welcome message
+        function initChatbot() {
+            addBotMessage("<b>👋 Welcome to MediAssist!</b> I'm your personal medical assistant, here to provide health information and guidance.");
+            addBotMessage("You can describe your symptoms, ask health questions, or use the Emergency button for immediate assistance. <i>How can I help you today?</i>");
+            
+            // Set up event listeners
+            document.getElementById('send-btn').addEventListener('click', sendMessage);
+            document.getElementById('message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            document.getElementById('voice-btn').addEventListener('click', toggleVoiceInput);
+            document.getElementById('emergency-btn').addEventListener('click', showEmergencyOverlay);
+            document.getElementById('cancel-emergency').addEventListener('click', hideEmergencyOverlay);
+            document.getElementById('confirm-emergency').addEventListener('click', sendEmergencyRequest);
+            
+            // Add input focus event for visual enhancement
+            const inputField = document.getElementById('message-input');
+            inputField.addEventListener('focus', function() {
+                document.querySelector('.chatbot-input').style.boxShadow = '0 0 0 3px rgba(25, 118, 210, 0.1)';
+            });
+            
+            inputField.addEventListener('blur', function() {
+                document.querySelector('.chatbot-input').style.boxShadow = 'none';
+            });
+        }
+        
+        // Animate the input placeholder for better UX
+        function animateInputPlaceholder() {
+            const placeholders = [
+                "Type your symptoms...",
+                "Ask about headaches...",
+                "Describe your pain...",
+                "Ask health questions...",
+                "Need medical advice?",
+                "How are you feeling?",
+                "Type your questions..."
+            ];
+            
+            const inputField = document.getElementById('message-input');
+            let currentIndex = 0;
+            
+            // Only change placeholder if the field is empty and not focused
+            setInterval(() => {
+                if (document.activeElement !== inputField && !inputField.value) {
+                    currentIndex = (currentIndex + 1) % placeholders.length;
+                    inputField.setAttribute('placeholder', placeholders[currentIndex]);
+                }
+            }, 3000);
+        }
+
+        // Setup speech recognition
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    const voiceBtn = document.getElementById('voice-btn');
+                    voiceBtn.querySelector('.button-icon').style.background = 'rgba(234, 67, 53, 0.2)';
+                    voiceBtn.querySelector('i').className = 'fas fa-stop';
+                };
+
+                recognition.onresult = function(event) {
+                    let transcript = event.results[0][0].transcript;
+                    document.getElementById('message-input').value = transcript;
+                    setTimeout(sendMessage, 500);
+                };
+
+                recognition.onend = function() {
+                    isListening = false;
+                    const voiceBtn = document.getElementById('voice-btn');
+                    voiceBtn.querySelector('.button-icon').style.background = 'rgba(25, 118, 210, 0.1)';
+                    voiceBtn.querySelector('i').className = 'fas fa-microphone';
+                };
+
+                recognition.onerror = function(event) {
+                    isListening = false;
+                    const voiceBtn = document.getElementById('voice-btn');
+                    voiceBtn.querySelector('.button-icon').style.background = 'rgba(25, 118, 210, 0.1)';
+                    voiceBtn.querySelector('i').className = 'fas fa-microphone';
+                    console.error('Speech recognition error:', event.error);
+                    addBotMessage("Sorry, I couldn't hear you properly. Please try again or type your message.");
+                };
+            } else {
+                document.getElementById('voice-btn').style.display = 'none';
+                addBotMessage("Voice input is not supported in your browser.");
+            }
+        }
+
+        // Toggle voice input
+        function toggleVoiceInput() {
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        // Send user message to the chatbot
+        function sendMessage() {
+            const inputField = document.getElementById('message-input');
+            const userMessage = inputField.value.trim();
+            
+            if (userMessage) {
+                addUserMessage(userMessage);
+                inputField.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Send message to the backend
+                sendMessageToBackend(userMessage);
+            }
+        }
+
+        // Send message to backend
+        function sendMessageToBackend(userMessage) {
+            fetch(`${BACKEND_URL}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'user-id': getUserId() // Add a unique user ID
+                },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('API quota exceeded.');
+                    } else if (response.status === 503) {
+                        throw new Error('Gemini model is unavailable.');
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide typing indicator
+                hideTypingIndicator();
+                
+                // Process the response
+                processResponse(data);
+            })
+            .catch(error => {
+                hideTypingIndicator();
+                console.error('Error:', error);
+                if (error.message.includes('quota')) {
+                    addBotMessage("⚠ API quota exceeded. Please try again later.");
+                } else if (error.message.includes('Gemini')) {
+                    addBotMessage("⚠ The Gemini model is currently unavailable. Please try again later.");
+                } else {
+                    addBotMessage("⚠ Sorry, I'm having trouble processing your request right now. Please try again later.");
+                }
+            });
+        }
+
+        // Process bot response from backend
+        function processResponse(data) {
+            if (data.text) {
+                // Format markdown-style content
+                const formattedText = formatMarkdown(data.text);
+                addBotMessage(formattedText);
+            }
+            
+            if (data.videos && data.videos.length > 0) {
+                // Display YouTube videos
+                data.videos.forEach(video => {
+                    addYoutubeVideo(video.id.videoId, video.snippet.title);
+                });
+            }
+        }
+        
+        // Format text with markdown-style elements
+        function formatMarkdown(text) {
+            // Replace *text* with <strong>text</strong>
+            text = text.replace(/\\(.?)\\*/g, '<strong>$1</strong>');
+            
+            // Replace section headers
+            text = text.replace(/\n([A-Za-z0-9\s]+):\n/g, '\n<b>$1:</b>\n');
+            
+            // Format lists
+            const lines = text.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                // If line starts with a number followed by a period
+                if (/^\d+\.\s/.test(lines[i])) {
+                    lines[i] = '<li>' + lines[i].replace(/^\d+\.\s/, '') + '</li>';
+                    
+                    // If this is the first item, add the opening ol tag
+                    if (i === 0 || !/^\d+\.\s/.test(lines[i-1])) {
+                        lines[i] = '<ol>' + lines[i];
+                    }
+                    
+                    // If this is the last item or the next line is not a list item, add the closing ol tag
+                    if (i === lines.length - 1 || !/^\d+\.\s/.test(lines[i+1])) {
+                        lines[i] = lines[i] + '</ol>';
+                    }
+                }
+                
+                // If line starts with a dash
+                if (/^-\s/.test(lines[i])) {
+                    lines[i] = '<li>' + lines[i].replace(/^-\s/, '') + '</li>';
+                    
+                    // If this is the first item, add the opening ul tag
+                    if (i === 0 || !/^-\s/.test(lines[i-1])) {
+                        lines[i] = '<ul>' + lines[i];
+                    }
+                    
+                    // If this is the last item or the next line is not a list item, add the closing ul tag
+                    if (i === lines.length - 1 || !/^-\s/.test(lines[i+1])) {
+                        lines[i] = lines[i] + '</ul>';
+                    }
+                }
+            }
+            
+            // Join the lines back together
+            text = lines.join('\n');
+            
+            // Convert line breaks to <br>
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
+        }
+
+        // Add user message to the chat
+        function addUserMessage(message) {
+            const messagesContainer = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'user-message');
+            messageElement.textContent = message;
+            
+            const timeElement = document.createElement('span');
+            timeElement.classList.add('message-time');
+            timeElement.textContent = getCurrentTime();
+            messageElement.appendChild(timeElement);
+            
+            messagesContainer.appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        // Add bot message to the chat
+        function addBotMessage(message) {
+            const messagesContainer = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'bot-message');
+            messageElement.innerHTML = message;
+            
+            const timeElement = document.createElement('span');
+            timeElement.classList.add('message-time');
+            timeElement.textContent = getCurrentTime();
+            messageElement.appendChild(timeElement);
+            
+            messagesContainer.appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        // Add YouTube video to the chat
+        function addYoutubeVideo(videoId, title) {
+            const messagesContainer = document.getElementById('messages');
+            const videoContainer = document.createElement('div');
+            videoContainer.classList.add('message', 'bot-message');
+            
+            videoContainer.innerHTML = `
+                <p><b>Related Video:</b> ${title}</p>
+                <div class="youtube-video">
+                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}" 
+                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
+                    gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            `;
+            
+            const timeElement = document.createElement('span');
+            timeElement.classList.add('message-time');
+            timeElement.textContent = getCurrentTime();
+            videoContainer.appendChild(timeElement);
+            
+            messagesContainer.appendChild(videoContainer);
+            scrollToBottom();
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('messages');
+            const loadingElement = document.createElement('div');
+            loadingElement.id = 'typing-indicator';
+            loadingElement.classList.add('message', 'bot-message', 'loading');
+            loadingElement.innerHTML = '<span></span><span></span><span></span>';
+            messagesContainer.appendChild(loadingElement);
+            scrollToBottom();
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Get current time in HH:MM format
+        function getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        // Scroll to the bottom of the chat
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Generate or retrieve user ID
+        function getUserId() {
+            let userId = localStorage.getItem('mediassist_user_id');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem('mediassist_user_id', userId);
+            }
+            return userId;
+        }
+
+        // Get Maps API key from backend
+        function getMapApiKey() {
+            return fetch(`${BACKEND_URL}/api/maps-key`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Invalid API key or server error. Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.key) {
+                        throw new Error('API key is missing or invalid.');
+                    }
+                    return data.key;
+                })
+                .catch(error => {
+                    console.error('Error fetching Maps API key:', error);
+                    addBotMessage("⚠ Unable to load the map due to an invalid or missing API key. Please contact support.");
+                    return ''; // Return empty to fail safely
+                });
+        }
+
+        // Show emergency overlay
+        async function showEmergencyOverlay() {
+            document.getElementById('emergency-overlay').style.display = 'flex';
+            getUserLocation();
+            
+            const apiKey = await getMapApiKey();
+            
+            if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            } else {
+                initMap();
+            }
+        }
+
+        // Initialize Google Map
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -34.397, lng: 150.644 },
+                zoom: 15,
+                styles: [
+                    {
+                        "featureType": "all",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"weight": "2.00"}]
+                    },
+                    {
+                        "featureType": "all",
+                        "elementType": "geometry.stroke",
+                        "stylers": [{"color": "#9c9c9c"}]
+                    },
+                    {
+                        "featureType": "all",
+                        "elementType": "labels.text",
+                        "stylers": [{"visibility": "on"}]
+                    },
+                    {
+                        "featureType": "landscape",
+                        "elementType": "all",
+                        "stylers": [{"color": "#f2f2f2"}]
+                    },
+                    {
+                        "featureType": "landscape",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "landscape.man_made",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "all",
+                        "stylers": [{"saturation": -100}, {"lightness": 45}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#eeeeee"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#7b7b7b"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "simplified"}]
+                    },
+                    {
+                        "featureType": "road.arterial",
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "transit",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "all",
+                        "stylers": [{"color": "#46bcec"}, {"visibility": "on"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#c8d7d4"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#070707"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#ffffff"}]
+                    }
+                ]
+            });
+            
+            if (userLocation) {
+                updateMap(userLocation);
+            }
+        }
+
+        // Hide emergency overlay
+        function hideEmergencyOverlay() {
+            document.getElementById('emergency-overlay').style.display = 'none';
+        }
+
+        // Get user's location
+        function getUserLocation() {
+            document.getElementById('location-status').textContent = 'Detecting your location...';
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        updateMap(userLocation);
+                        document.getElementById('location-status').textContent = 'Location detected';
+                    },
+                    function(error) {
+                        console.error('Geolocation error:', error);
+                        document.getElementById('location-status').textContent = 'Could not detect location. Please allow location access.';
+                    }
+                );
+            } else {
+                document.getElementById('location-status').textContent = 'Geolocation is not supported by your browser.';
+            }
+        }
+
+        // Update map with user's location
+        function updateMap(location) {
+            if (map) {
+                map.setCenter(location);
+                
+                if (marker) {
+                    marker.setPosition(location);
+                } else {
+                    marker = new google.maps.Marker({
+                        position: location,
+                        map: map,
+                        title: 'Your Location',
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 10,
+                            fillOpacity: 1,
+                            strokeWeight: 2,
+                            fillColor: '#1976D2',
+                            strokeColor: '#ffffff',
+                        }
+                    });
+                    
+                    // Add a circle to show accuracy
+                    new google.maps.Circle({
+                        map: map,
+                        radius: 100,
+                        fillColor: '#1976D2',
+                        fillOpacity: 0.1,
+                        strokeColor: '#1976D2',
+                        strokeOpacity: 0.3,
+                        strokeWeight: 1,
+                        center: location
+                    });
+                }
+            }
+        }
+
+        // Send emergency request
+        function sendEmergencyRequest() {
+            if (!userLocation) {
+                document.getElementById('location-status').textContent = 'Please allow location access first.';
+                return;
+            }
+            
+            hideEmergencyOverlay();
+            addBotMessage("<span style='font-size: 1.2em;'>🚑 <strong>Emergency assistance requested!</strong></span><br>An ambulance has been dispatched to your location. Please stay on the line.");
+            
+            // Send emergency request to backend
+            fetch(`${BACKEND_URL}/emergency`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ location: userLocation })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    addBotMessage(`<b>Status Update:</b> The ambulance is on its way to:<br>${data.address}<br><br><b>Estimated arrival time:</b> ${data.eta} minutes.<br><br>Please prepare any medications or medical documents you might need.`);
+                } else {
+                    addBotMessage("There was an issue dispatching the ambulance. Please call emergency services directly.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addBotMessage("Unable to contact emergency services. Please call your local emergency number directly.");
+            });
+        }
+    </script>
+</body>
+</html>

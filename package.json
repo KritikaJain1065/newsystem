@@ -1,0 +1,37 @@
+{
+  "name": "mediconnect-healthcare-app",
+  "version": "1.0.0",
+  "description": "Healthcare app with emergency services",
+  "main": "backend/backend.js",
+  "scripts": {
+    "start": "node backend/backend.js",
+    "dev": "nodemon backend/backend.js"
+  },
+  "keywords": [
+    "healthcare",
+    "portal",
+    "modern",
+    "facilities",
+    "express",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "multer": "^1.4.5-lts.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCare Partners | Your Health Journey Starts Here</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .live-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(100, 181, 246, 0.2);
+            animation: float 15s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.2;
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px) rotate(90deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-40px) translateX(20px) rotate(180deg);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(-20px) translateX(10px) rotate(270deg);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(0) translateX(0) rotate(360deg);
+                opacity: 0.2;
+            }
+        }
+
+        header {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.5rem 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #e0e0e0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #fff;
+            color: #4285f4;
+        }
+
+        .btn-primary:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-guest {
+            background-color: #34a853;
+            color: white;
+        }
+
+        .btn-guest:hover {
+            background-color: #2d9249;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-logout {
+            background-color: #ea4335;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-logout:hover {
+            background-color: #d73125;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            margin-right: 15px;
+        }
+
+        .language-btn {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .language-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            padding: 8px 0;
+            margin-top: 5px;
+        }
+
+        .language-dropdown.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .language-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .language-option:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .language-option.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+
+        .language-option img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5rem 1rem;
+        }
+
+        .hero-content {
+            width: 50%;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .hero-image {
+            width: 45%;
+            position: relative;
+        }
+
+        .hero-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: floatImage 3s infinite ease-in-out;
+        }
+
+        @keyframes floatImage {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            color: #333;
+        }
+
+        .highlight {
+            color: #4285f4;
+        }
+
+        p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .features {
+            padding: 5rem 1rem;
+            background-color: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .section-title p {
+            max-width: 600px;
+            margin: 0 auto;
+            color: #666;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            width: 300px;
+            transition: 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+        }
+
+        .card-icon {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            color: #4285f4;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .testimonials {
+            padding: 5rem 1rem;
+            background-color: #f8f9fa;
+        }
+
+        .testimonial-slider {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonial-container {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .testimonial {
+            min-width: 100%;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .testimonial img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .testimonial-name {
+            font-weight: 700;
+            color: #4285f4;
+        }
+
+        .testimonial-role {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+
+        .control-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ccc;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .control-dot.active {
+            background-color: #4285f4;
+        }
+
+        .cta {
+            padding: 5rem 1rem;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 3rem 1rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 2px;
+            background-color: #4285f4;
+            bottom: 0;
+            left: 0;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.7rem;
+        }
+
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            color: #4285f4;
+        }
+
+        .footer-bottom {
+            margin-top: 2rem;
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Recruitment Feature Section */
+        .recruitment-feature {
+            margin: 3rem auto;
+            max-width: 1000px;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f0f7ff, #e1f5fe);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(66, 133, 244, 0.2);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #4285f4;
+        }
+
+        .recruitment-feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(66, 133, 244, 0), rgba(66, 133, 244, 0.3), rgba(66, 133, 244, 0));
+            z-index: 1;
+            transform: translateX(-100%);
+            animation: flash 3s infinite;
+        }
+
+        @keyframes flash {
+            0% {
+                transform: translateX(-100%);
+            }
+            20%, 100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .recruitment-content {
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .recruitment-image {
+            flex: 0.3;
+            padding-right: 2rem;
+        }
+
+        .recruitment-text {
+            flex: 0.7;
+        }
+
+        .recruitment-badge {
+            display: inline-block;
+            background-color: #ea4335;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .recruitment-heading {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #4285f4;
+        }
+
+        .recruitment-cta {
+            margin-top: 1.5rem;
+        }
+
+        .recruitment-btn {
+            display: inline-block;
+            padding: 0.7rem 2rem;
+            background-color: #34a853;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .recruitment-btn:hover {
+            background-color: #2d9249;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 168, 83, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .recruitment-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .recruitment-image {
+                padding-right: 0;
+                padding-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #4285f4, #34a853);
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                z-index: 10;
+                text-align: center;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links li {
+                margin: 10px 0;
+            }
+
+            .btn-group {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #4285f4, #34a853);
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                z-index: 10;
+                align-items: center;
+            }
+            
+            .btn-group.active {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 3rem 1rem;
+            }
+
+            .hero-content, .hero-image {
+                width: 100%;
+            }
+
+            .hero-content {
+                margin-bottom: 2rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .cards-container {
+                justify-content: center;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 350px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Campaign Notification Styles */
+        .campaign-notification {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #f5f9ff, #ecf5ff);
+            border-left: 5px solid #ff9800;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            animation: slideDown 0.5s ease-out forwards, pulse-border 2s infinite;
+            z-index: 5;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes pulse-border {
+            0% { border-color: #ff9800; }
+            50% { border-color: #e65100; }
+            100% { border-color: #ff9800; }
+        }
+        
+        .notification-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: #ff9800;
+            animation: bounce 2s infinite;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .notification-text {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0;
+        }
+        
+        .notification-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-btn {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-btn:hover {
+            background-color: #e65100;
+            transform: translateY(-2px);
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 0 5px;
+        }
+        
+        .notification-close:hover {
+            color: #333;
+        }
+        
+        /* Campaign Modal Styles */
+        .campaign-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .campaign-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: scaleIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .campaign-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .campaign-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .campaign-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .campaign-item h3 {
+            color: #4285f4;
+            margin-bottom: 10px;
+        }
+        
+        .campaign-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            margin-right: 20px;
+        }
+        
+        .detail-item i {
+            color: #34a853;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .campaign-notification {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .notification-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .notification-content {
+                margin-bottom: 15px;
+            }
+            
+            /* Language selector mobile styles */
+            .language-selector {
+                order: -1;
+                margin-bottom: 10px;
+                margin-right: 0;
+                width: 100%;
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #4285f4, #34a853);
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                z-index: 10;
+                align-items: center;
+            }
+            
+            .language-selector.active {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .language-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 8px;
+                background-color: rgba(255, 255, 255, 0.3);
+                margin-bottom: 10px;
+            }
+            
+            .language-dropdown {
+                position: relative;
+                width: 100%;
+                max-height: 60vh;
+                overflow-y: auto;
+                border-radius: 8px;
+                background-color: white;
+            }
+            
+            .language-option {
+                padding: 15px;
+            }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-20px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Live Background -->
+    <div class="live-bg" id="live-bg"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="logo-icon">⚕️</span> HealthCare Partners
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" data-translate="nav-home">Home</a></li>
+                <li><a href="#services" data-translate="nav-services">Services</a></li>
+                <li><a href="#doctors" data-translate="nav-doctors">Doctors</a></li>
+                <li><a href="#about" data-translate="nav-about">About Us</a></li>
+                <li><a href="#contact" data-translate="nav-contact">Contact</a></li>
+                <li><a href="final_guestpage.html" data-translate="nav-emergency">Emergency Service</a></li>
+            </ul>
+            <div class="btn-group">
+                <a href="sign_up.html" class="btn btn-logout">Logout</a>
+            </div>
+            <div class="language-selector">
+                <button class="language-btn">
+                    <i class="fas fa-globe"></i>
+                    <span>Language</span>
+                </button>
+                <div class="language-dropdown">
+                    <div class="language-option active" data-lang="en">
+                        <img src="https://flagcdn.com/w20/gb.png" alt="English">
+                        English
+                    </div>
+                    <div class="language-option" data-lang="hi">
+                        <img src="https://flagcdn.com/w20/in.png" alt="हिंदी">
+                        हिंदी
+                    </div>
+                    <div class="language-option" data-lang="ta">
+                        <img src="https://flagcdn.com/w20/in.png" alt="தமிழ்">
+                        தமிழ்
+                    </div>
+                    <div class="language-option" data-lang="te">
+                        <img src="https://flagcdn.com/w20/in.png" alt="తెలుగు">
+                        తెలుగు
+                    </div>
+                    <div class="language-option" data-lang="bn">
+                        <img src="https://flagcdn.com/w20/in.png" alt="বাংলা">
+                        বাংলা
+                    </div>
+                    <div class="language-option" data-lang="mr">
+                        <img src="https://flagcdn.com/w20/in.png" alt="मराठी">
+                        मराठी
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-menu">☰</div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <!-- Health Campaign Notification Banner -->
+        <div class="campaign-notification" id="campaign-notification">
+            <div class="notification-icon">🏥</div>
+            <div class="notification-content">
+                <h3 class="notification-title">Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)</h3>
+                <p class="notification-text">Provides health coverage up to ₹5 lakhs per family per year for secondary and tertiary care hospitalization. Check your eligibility now!</p>
+            </div>
+            <div class="notification-actions">
+                <button class="notification-btn">Learn More</button>
+                <button class="notification-close" id="notification-close">&times;</button>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title" data-translate="hero-title">Your Health, Our Priority</h1>
+            <p class="hero-text" data-translate="hero-text">We provide top-quality healthcare services with a patient-centered approach. Our team of expert medical professionals is dedicated to improving your well-being through personalized care and innovative treatments.</p>
+            <a href="book_appointment.html" class="btn book-appointment-btn" data-translate="book-appointment">Book an Appointment</a>
+        </div>
+        <div class="hero-image">
+            <img src="image1.jpg" alt="Healthcare professionals">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="services">
+        <div class="section-title">
+            <h2 class="services-title" data-translate="our-services">Our Services</h2>
+            <p class="services-subtitle" data-translate="services-subtitle">We offer a comprehensive range of medical services to meet all your healthcare needs</p>
+        </div>
+        <div class="cards-container">
+            <div class="card">
+                <a href="chatbot_medic.html" style="text-decoration: none; color: inherit;">
+                <div class="card-icon">🤖</div>
+                <h3>AI Chatbot Assistant</h3>
+                <p>Get instant health information and guidance from our intelligent AI chatbot, available 24/7 to answer your questions.</p>
+            </div>
+            <!-- Modified card with link -->
+            <div class="card">
+                <a href="mainfile.html" style="text-decoration: none; color: inherit;">
+                    <div class="card-icon">🏥</div>
+                    <h3>Modern Facilities</h3>
+                 <p>State-of-the-art medical equipment and comfortable facilities to ensure the best care possible.</p>
+             </a>
+            </div>
+            <div class="card">
+                <a href="telehealth_services.html" style="text-decoration: none; color: inherit;">
+                    <div class="card-icon">📱</div>
+                    <h3>Telehealth Services</h3>
+                    <p>Connect with our doctors from the comfort of your home through our secure telehealth platform.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recruitment Feature Section -->
+    <section class="recruitment-feature" id="doctors">
+        <div class="recruitment-content">
+            <div class="recruitment-image">
+                <img src="image2.webp" alt="Join Our Team" width="200" height="auto" style="max-width: 100%;">
+            </div>
+            <div class="recruitment-text">
+                <span class="recruitment-badge hiring-title" data-translate="hiring">We're Hiring!</span>
+                <h2 class="recruitment-heading join-team-title" data-translate="join-team">Join Our Healthcare Team</h2>
+                <p class="join-team-desc" data-translate="join-team-desc">We're looking for passionate healthcare professionals to join our growing team. Explore exciting career opportunities with competitive benefits and a supportive work environment.</p>
+                <div class="recruitment-cta">
+                    <a href="recruitement_page.html" class="recruitment-btn view-positions-btn" data-translate="view-positions">View Open Positions</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="about">
+        <div class="section-title">
+            <h2 class="testimonials-title" data-translate="testimonials">What Our Patients Say</h2>
+            <p class="testimonials-subtitle" data-translate="testimonials-subtitle">Hear from people whose lives have been transformed by our care</p>
+        </div>
+        <div class="testimonial-slider">
+            <div class="testimonial-container" id="testimonial-container">
+                <div class="testimonial">
+                   
+                    <p class="testimonial-text">"The care I received at HealthCare Partners was exceptional. The doctors took the time to understand my concerns and developed a treatment plan that worked for me."</p>
+                    <p class="testimonial-name">Sarah Johnson</p>
+                    <p class="testimonial-role">Patient</p>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial-text">"I've been a patient at HealthCare Partners for over 5 years, and I wouldn't go anywhere else. The staff is friendly, the doctors are knowledgeable, and I always feel well-cared for."</p>
+                    <p class="testimonial-name">Michael Chen</p>
+                    <p class="testimonial-role">Patient</p>
+                </div>
+                <div class="testimonial">
+                  
+                    <p class="testimonial-text">"As someone with a chronic condition, finding the right healthcare provider was crucial. HealthCare Partners has been a game-changer for managing my health."</p>
+                    <p class="testimonial-name">Emma Rodriguez</p>
+                    <p class="testimonial-role">Patient</p>
+                </div>
+            </div>
+            <div class="slider-controls" id="slider-controls">
+                <div class="control-dot active" data-index="0"></div>
+                <div class="control-dot" data-index="1"></div>
+                <div class="control-dot" data-index="2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>HealthCare Partners</h3>
+                <p>Providing quality healthcare services with a patient-centered approach for over 20 years.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="main_websitepage.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="doctors.html">Find a Doctor</a></li>
+                    <li><a href="patient_portal.html">Patient Portal</a></li>
+                    <li><a href="recruitement_page.html">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Services</h3>
+                <ul>
+                    <li><a href="services.html#primary-care">Primary Care</a></li>
+                    <li><a href="services.html#specialty-care">Specialty Care</a></li>
+                    <li><a href="telehealth_services.html">Telehealth</a></li>
+                    <li><a href="services.html#preventive-care">Preventive Care</a></li>
+                    <li><a href="services.html#lab-services">Laboratory Services</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li>123 Health Avenue</li>
+                    <li>Wellness City, WC 12345</li>
+                    <li>Phone: (123) 456-7890</li>
+                    <li>Email: info@healthcarepartners.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HealthCare Partners. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Campaign Modal -->
+    <div class="campaign-modal" id="campaign-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Indian Health Campaigns & Yojnas</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul class="campaign-list">
+                    <li class="campaign-item">
+                        <h3>Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)</h3>
+                        <div class="campaign-details">
+                            <div class="detail-item"><i>👨‍👩‍👧‍👦</i> For: Economically vulnerable families</div>
+                            <div class="detail-item"><i>💰</i> Coverage: Up to ₹5 lakhs per family per year</div>
+                        </div>
+                        <p>Provides health insurance coverage for secondary and tertiary care hospitalization. It aims to help economically vulnerable families and offers cashless and paperless access to healthcare services.</p>
+                        <p><strong>How to Apply:</strong> Visit your nearest Ayushman Bharat Kendra, Common Service Centre, or register through the official PM-JAY portal.</p>
+                    </li>
+                    <li class="campaign-item">
+                        <h3>National Health Mission (NHM)</h3>
+                        <div class="campaign-details">
+                            <div class="detail-item"><i>👨‍👩‍👧‍👦</i> For: All citizens with focus on rural areas</div>
+                            <div class="detail-item"><i>🏥</i> Type: Primary healthcare</div>
+                        </div>
+                        <p>Aims to provide accessible, affordable, and quality healthcare to rural areas with special focus on the states with weak public health indicators and infrastructure.</p>
+                        <p><strong>Benefits:</strong> Improved healthcare facilities, reduced disease burden, and strengthened public health systems.</p>
+                    </li>
+                    <li class="campaign-item">
+                        <h3>Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA)</h3>
+                        <div class="campaign-details">
+                            <div class="detail-item"><i>🤰</i> For: Pregnant women</div>
+                            <div class="detail-item"><i>📅</i> Services: Free checkups on 9th of every month</div>
+                        </div>
+                        <p>Provides fixed-day assured, comprehensive and quality antenatal care to pregnant women on the 9th of every month to ensure safe pregnancy.</p>
+                        <p><strong>Services Include:</strong> Free antenatal check-ups, required tests, and counseling by gynecologists/physicians.</p>
+                    </li>
+                    <li class="campaign-item">
+                        <h3>Mission Indradhanush</h3>
+                        <div class="campaign-details">
+                            <div class="detail-item"><i>👶</i> For: Children & pregnant women</div>
+                            <div class="detail-item"><i>💉</i> Focus: Complete immunization</div>
+                        </div>
+                        <p>Aims to immunize all children under the age of 2 years and pregnant women against preventable diseases.</p>
+                        <p><strong>Vaccines Provided:</strong> Protection against 12 Vaccine-Preventable Diseases including diphtheria, whooping cough, tetanus, polio, tuberculosis, measles, etc.</p>
+                    </li>
+                    <li class="campaign-item">
+                        <h3>Rashtriya Swasthya Bima Yojana (RSBY)</h3>
+                        <div class="campaign-details">
+                            <div class="detail-item"><i>👨‍👩‍👧‍👦</i> For: BPL families</div>
+                            <div class="detail-item"><i>💰</i> Coverage: Up to ₹30,000 per family per annum</div>
+                        </div>
+                        <p>A health insurance scheme for the Below Poverty Line (BPL) families with the aim to reduce out-of-pocket expenditure on healthcare.</p>
+                        <p><strong>Smart Card:</strong> Beneficiaries are issued a smart card for cashless treatment at the network hospitals.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentLanguage = 'en';
+        const API_BASE_URL = 'http://localhost:3000';
+
+        // Function to fetch translations from the backend
+        async function fetchTranslations(lang) {
+            try {
+                console.log(`Fetching translations for language: ${lang}`);
+                const response = await fetch(`${API_BASE_URL}/api/translations/${lang}`);
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch translations: ${response.status} ${response.statusText}`);
+                }
+                const data = await response.json();
+                console.log('Received translations:', data);
+                return data.translations;
+            } catch (error) {
+                console.error('Error fetching translations:', error);
+                return null;
+            }
+        }
+
+        // Function to update UI with translations
+        async function changeLanguage(lang) {
+            try {
+                console.log(`Changing language to: ${lang}`);
+                const translations = await fetchTranslations(lang);
+                if (!translations) {
+                    console.error('Failed to load translations');
+                    return;
+                }
+
+                // Update all elements with data-translate attribute
+                const elements = document.querySelectorAll('[data-translate]');
+                console.log(`Found ${elements.length} translatable elements`);
+                
+                elements.forEach(element => {
+                    const key = element.getAttribute('data-translate');
+                    if (translations[key]) {
+                        element.textContent = translations[key];
+                        console.log(`Updated element with key ${key}`);
+                    } else {
+                        console.warn(`No translation found for key: ${key}`);
+                    }
+                });
+
+                // Update active language in dropdown
+                document.querySelectorAll('.language-option').forEach(option => {
+                    option.classList.remove('active');
+                    if (option.getAttribute('data-lang') === lang) {
+                        option.classList.add('active');
+                    }
+                });
+
+                // Update language button text
+                const languageBtn = document.querySelector('.language-btn');
+                if (languageBtn) {
+                    const selectedOption = document.querySelector(`.language-option[data-lang="${lang}"]`);
+                    if (selectedOption) {
+                        languageBtn.innerHTML = `<i class="fas fa-globe"></i> ${selectedOption.textContent.trim()}`;
+                    }
+                }
+
+                // Save language preference
+                localStorage.setItem('preferredLanguage', lang);
+                currentLanguage = lang;
+                console.log('Language change completed successfully');
+            } catch (error) {
+                console.error('Error changing language:', error);
+            }
+        }
+
+        // Initialize language selector
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Initializing language selector');
+            // Load saved language preference
+            const savedLanguage = localStorage.getItem('preferredLanguage') || 'en';
+            console.log(`Loading saved language preference: ${savedLanguage}`);
+            await changeLanguage(savedLanguage);
+
+            // Set up language dropdown event listeners
+            const languageBtn = document.querySelector('.language-btn');
+            const languageDropdown = document.querySelector('.language-dropdown');
+            const languageOptions = document.querySelectorAll('.language-option');
+
+            if (languageBtn && languageDropdown) {
+                console.log('Setting up language dropdown event listeners');
+                // Toggle dropdown on button click
+                languageBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    languageDropdown.classList.toggle('show');
+                    console.log('Language dropdown toggled');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', () => {
+                    languageDropdown.classList.remove('show');
+                });
+
+                // Handle language option selection
+                languageOptions.forEach(option => {
+                    option.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const lang = option.getAttribute('data-lang');
+                        console.log(`Language option clicked: ${lang}`);
+                        await changeLanguage(lang);
+                        languageDropdown.classList.remove('show');
+                    });
+                });
+            } else {
+                console.error('Language selector elements not found');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove refresh animation logic
+            
+            // Mobile menu functionality
+            const mobileMenuBtn = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            const btnGroup = document.querySelector('.btn-group');
+            const languageSelector = document.querySelector('.language-selector');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                btnGroup.classList.toggle('active');
+                languageSelector.classList.toggle('active');
+            });
+            
+            // Original home screen tabs logic
+            const pageTabs = document.querySelectorAll('.tab');
+            const contentSections = document.querySelectorAll('.tab-content');
+
+            // Show default tab
+            setActiveTab('home');
+
+            pageTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    setActiveTab(tabId);
+                });
+            });
+
+            function setActiveTab(tabId) {
+                // Handle tab activation if needed
+            }
+
+            // Live background setup
+            const liveBg = document.getElementById('live-bg');
+            const colors = ['rgba(100, 181, 246, 0.2)', 'rgba(77, 208, 225, 0.2)', 'rgba(77, 182, 172, 0.2)'];
+            
+            // Create bubbles
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                
+                // Random properties
+                const size = Math.random() * 100 + 50;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const colorIndex = Math.floor(Math.random() * colors.length);
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${posX}%`;
+                bubble.style.top = `${posY}%`;
+                bubble.style.animationDelay = `${delay}s`;
+                bubble.style.background = colors[colorIndex];
+                
+                liveBg.appendChild(bubble);
+            }
+
+            // Health Campaign Notification System
+            const campaignNotification = document.getElementById('campaign-notification');
+            const notificationBtn = document.querySelector('.notification-btn');
+            const notificationClose = document.getElementById('notification-close');
+            const campaignModal = document.getElementById('campaign-modal');
+            const modalClose = document.getElementById('modal-close');
+            
+            // Indian Health Campaigns Data
+            const campaigns = [
+                {
+                    title: "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)",
+                    text: "Provides health coverage up to ₹5 lakhs per family per year for secondary and tertiary care hospitalization. Check your eligibility now!"
+                },
+                {
+                    title: "Mission Indradhanush",
+                    text: "Aims to immunize all children under 2 years and pregnant women against preventable diseases. Next immunization camp on 15th August."
+                },
+                {
+                    title: "Pradhan Mantri Surakshit Matritva Abhiyan",
+                    text: "Free antenatal check-ups for pregnant women on the 9th of every month. Register for the upcoming check-up session."
+                },
+                {
+                    title: "National Digital Health Mission",
+                    text: "Get your Health ID today for seamless access to healthcare services and your digital health records."
+                },
+                {
+                    title: "Fit India Movement",
+                    text: "Join the monthly fitness challenges to stay active and healthy. This month's theme: Yoga for Well-being."
+                }
+            ];
+            
+            // Initialize with a random campaign
+            let currentCampaignIndex = Math.floor(Math.random() * campaigns.length);
+            updateCampaignNotification(currentCampaignIndex);
+            
+            // Rotate campaigns every 30 seconds
+            setInterval(() => {
+                currentCampaignIndex = (currentCampaignIndex + 1) % campaigns.length;
+                updateCampaignNotification(currentCampaignIndex);
+            }, 30000);
+            
+            // Update notification content
+            function updateCampaignNotification(index) {
+                const campaignTitleElement = document.querySelector('.notification-title');
+                const campaignTextElement = document.querySelector('.notification-text');
+                
+                // Fade out
+                campaignTitleElement.style.opacity = 0;
+                campaignTextElement.style.opacity = 0;
+                
+                // Update content after fade out
+                setTimeout(() => {
+                    campaignTitleElement.textContent = campaigns[index].title;
+                    campaignTextElement.textContent = campaigns[index].text;
+                    
+                    // Fade in
+                    campaignTitleElement.style.opacity = 1;
+                    campaignTextElement.style.opacity = 1;
+                }, 300);
+            }
+            
+            // Event listeners for notification interactions
+            notificationBtn.addEventListener('click', function() {
+                campaignModal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+            });
+            
+            notificationClose.addEventListener('click', function() {
+                campaignNotification.style.animation = 'slideUp 0.5s ease-out forwards';
+                
+                setTimeout(() => {
+                    campaignNotification.style.display = 'none';
+                }, 500);
+                
+                // Store in session that user closed the notification
+                sessionStorage.setItem('campaignNotificationClosed', 'true');
+            });
+            
+            modalClose.addEventListener('click', function() {
+                campaignModal.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            });
+            
+            // Close modal when clicking outside content
+            campaignModal.addEventListener('click', function(e) {
+                if (e.target === campaignModal) {
+                    campaignModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Check if notification was previously closed
+            if (sessionStorage.getItem('campaignNotificationClosed') === 'true') {
+                campaignNotification.style.display = 'none';
+            }
+
+            // Additional transition effects for notification elements
+            document.querySelector('.notification-title').style.transition = 'opacity 0.3s ease';
+            document.querySelector('.notification-text').style.transition = 'opacity 0.3s ease';
+        });
+    </script>
+</body>
+</html>

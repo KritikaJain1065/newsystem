@@ -1,0 +1,23 @@
+{
+    "name": "doctor-appointment-system",
+    "version": "1.0.0",
+    "description": "Integrated Doctor Appointment System",
+    "main": "app1.js",
+    "scripts": {
+        "start": "node app1.js",
+        "dev": "nodemon app1.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.20.3",
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "sqlite": "^5.1.1",
+        "sqlite3": "^5.1.7"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}

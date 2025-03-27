@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediAssist - Indian Healthcare Appointment System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            margin: 0;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .appointment-form {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .doctors-list {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .doctor-card {
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .doctor-card h3 {
+            margin-top: 0;
+            color: #3498db;
+        }
+        
+        .doctor-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .doctor-specialty {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>MediAssist - Indian Healthcare Appointment System</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div id="message" class="message hidden"></div>
+        
+        <div class="content-wrapper">
+            <div class="appointment-form">
+                <h2>Book a Medical Consultation</h2>
+                <form id="appointmentForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Mobile Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="Enter your 10-digit mobile number" pattern="[0-9]{10}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="aadhaar">Aadhaar Number (Optional)</label>
+                        <input type="text" id="aadhaar" name="aadhaar" placeholder="Enter your 12-digit Aadhaar number" pattern="[0-9]{12}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Preferred Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="time">Preferred Time</label>
+                        <input type="time" id="time" name="time" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="doctorId">Select Medical Specialist</label>
+                        <select id="doctorId" name="doctorId" required>
+                            <option value="">-- Select a Medical Specialist --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultationType">Consultation Type</label>
+                        <select id="consultationType" name="consultationType" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="inPerson">In-Person</option>
+                            <option value="video">Video Consultation</option>
+                            <option value="homeVisit">Home Visit</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reason">Chief Complaint / Symptoms</label>
+                        <textarea id="reason" name="reason" placeholder="Please describe your symptoms or reason for consultation" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="insurance">Health Insurance (Optional)</label>
+                        <select id="insurance" name="insurance">
+                            <option value="">-- Select if applicable --</option>
+                            <option value="ayushman">Ayushman Bharat</option>
+                            <option value="cghs">CGHS</option>
+                            <option value="star">Star Health</option>
+                            <option value="apollo">Apollo Munich</option>
+                            <option value="hdfc">HDFC ERGO</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">Book Appointment</button>
+                </form>
+            </div>
+            
+            <div class="doctors-list">
+                <h2>Available Medical Specialists</h2>
+                <div id="doctorsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base URL for API
+        const API_URL = 'http://localhost:3000/api';
+        
+        // DOM Elements
+        const appointmentForm = document.getElementById('appointmentForm');
+        const doctorsList = document.getElementById('doctorsList');
+        const doctorSelect = document.getElementById('doctorId');
+        const messageDiv = document.getElementById('message');
+        
+        // Display message function
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.classList.remove('hidden');
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // Fetch doctors from API
+        async function fetchDoctors() {
+            try {
+                const response = await fetch(`${API_URL}/doctors`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch doctors');
+                }
+                
+                const doctors = await response.json();
+                displayDoctors(doctors);
+                populateDoctorSelect(doctors);
+            } catch (error) {
+                console.error(error);
+                showMessage('Error loading doctors. Please try again later.', 'error');
+            }
+        }
+        
+        // Display doctors in the list
+        function displayDoctors(doctors) {
+            doctorsList.innerHTML = '';
+            
+            if (doctors.length === 0) {
+                doctorsList.innerHTML = '<p>No doctors available at this time.</p>';
+                return;
+            }
+            
+            doctors.forEach(doctor => {
+                const doctorCard = document.createElement('div');
+                doctorCard.className = 'doctor-card';
+                doctorCard.dataset.id = doctor.id;
+                
+                doctorCard.innerHTML = `
+                    <h3>Dr. ${doctor.name}</h3>
+                    <div class="doctor-info">
+                        <p class="doctor-specialty">${doctor.specialization}</p>
+                        <p><strong>Phone:</strong> ${doctor.phone}</p>
+                        <p><strong>Location:</strong> ${doctor.address}</p>
+                    </div>
+                `;
+                
+                doctorCard.addEventListener('click', () => {
+                    doctorSelect.value = doctor.id;
+                });
+                
+                doctorsList.appendChild(doctorCard);
+            });
+        }
+        
+        // Populate doctor selection dropdown
+        function populateDoctorSelect(doctors) {
+            // Clear existing options except the first one
+            while (doctorSelect.options.length > 1) {
+                doctorSelect.remove(1);
+            }
+            
+            doctors.forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor.id;
+                option.textContent = `Dr. ${doctor.name} - ${doctor.specialization}`;
+                doctorSelect.appendChild(option);
+            });
+        }
+        
+        // Handle form submission
+        appointmentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                aadhaar: document.getElementById('aadhaar').value || null,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                doctorId: document.getElementById('doctorId').value,
+                consultationType: document.getElementById('consultationType').value,
+                reason: document.getElementById('reason').value,
+                insurance: document.getElementById('insurance').value || null
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/appointments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to book appointment');
+                }
+                
+                const result = await response.json();
+                showMessage('Appointment booked successfully! We will send a confirmation SMS to your registered mobile number shortly.', 'success');
+                appointmentForm.reset();
+            } catch (error) {
+                console.error(error);
+                showMessage(error.message || 'Error booking appointment. Please try again.', 'error');
+            }
+        });
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDoctors();
+            
+            // Set min date for appointment to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').min = today;
+            document.getElementById('date').value = today;
+        });
+    </script>
+</body>
+</html>

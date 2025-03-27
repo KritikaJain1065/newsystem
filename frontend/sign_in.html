@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        
+        /* Keyframes for animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 200, 83, 0.5); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #007bff, #00bcd4, #6a11cb, #2575fc);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out forwards;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .container.animate-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        .container.error-animation {
+            animation: shake 0.5s ease-in-out;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2);
+        }
+        
+        .container.success-animation {
+            animation: success 0.8s ease-in-out forwards;
+            border: 1px solid rgba(0, 200, 83, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #007bff, #00bcd4);
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 3px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        .input-focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(to right, #007bff, #00bcd4);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 5px;
+            animation: slideIn 0.7s ease-out forwards;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, #0056b3, #0097a7);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        button.button-hover {
+            animation: pulse 1s infinite;
+        }
+        
+        button.button-clicked {
+            transform: scale(0.95);
+            opacity: 0.9;
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:hover::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        p {
+            margin: 20px 0 5px;
+            font-size: 14px;
+            color: #555;
+            animation: fadeIn 0.9s ease-out forwards;
+        }
+        
+        p a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        p a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .forgot-password {
+            display: inline-block;
+            margin: 12px 0;
+            color: #007bff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        .forgot-password:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome Back</h1>
+        <form id="signinForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+            <button type="submit" id="signInBtn">Sign In</button>
+        </form>
+        <p>Don't have an account? <a href="sign_up.html">Sign Up</a></p>
+    </div>
+
+    <script>
+        // Add animation classes to elements as they load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add subtle animation to form container on load
+            setTimeout(() => {
+                document.querySelector('.container').classList.add('animate-in');
+            }, 100);
+            
+            // Add input field focus effects
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.classList.add('input-focus');
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (this.value === '') {
+                        this.classList.remove('input-focus');
+                    }
+                });
+            });
+            
+            // Add button pulse animation on hover
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.classList.add('button-hover');
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.classList.remove('button-hover');
+                });
+            });
+        });
+
+        document.getElementById('signinForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            // Add animation to button when clicked
+            document.getElementById('signInBtn').classList.add('button-clicked');
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const response = await fetch('/api/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success animation before redirect
+                    document.querySelector('.container').classList.add('success-animation');
+                    setTimeout(() => {
+                        window.location.href = '/main'; // Redirect to main page after successful login
+                    }, 800);
+                } else {
+                    // Add shake animation to form on error
+                    document.querySelector('.container').classList.add('error-animation');
+                    setTimeout(() => {
+                        document.querySelector('.container').classList.remove('error-animation');
+                    }, 500);
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                // Remove click animation
+                setTimeout(() => {
+                    document.getElementById('signInBtn').classList.remove('button-clicked');
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>

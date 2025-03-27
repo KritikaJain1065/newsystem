@@ -1,0 +1,29 @@
+{
+  "name": "modern_healthcare",
+  "version": "1.0.0",
+  "description": "Modern Healthcare Facilities Application",
+  "main": "app8.js",
+  "scripts": {
+    "start": "node app8.js",
+    "dev": "nodemon app8.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "healthcare",
+    "express",
+    "sqlite",
+    "backend",
+    "frontend"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+} 
