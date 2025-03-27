@@ -42,18 +42,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from multiple directories
-app.use(express.static(path.join(__dirname, 'frontend')));
-app.use(express.static(path.join(__dirname, '..'))); // Serve files from parent directory
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
 // Authentication Middleware
@@ -110,9 +109,15 @@ const upload = multer({
   }
 });
 
+// Ensure database directory exists
+const dbDir = path.join(__dirname, 'db');
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
+
 // Initialize SQLite Databases
 // 1. Main Users Database
-const usersDb = new sqlite3.Database('./new_users.db', (err) => {
+const usersDb = new sqlite3.Database(path.join(dbDir, 'users.db'), (err) => {
     if (err) console.error('Database connection error:', err.message);
     else {
         console.log('Connected to users SQLite database');
@@ -211,13 +216,12 @@ healthcareDb.serialize(() => {
 });
 
 // 2. Doctor Appointment Database
-const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
+const appointmentDb = new sqlite3.Database(path.join(dbDir, 'appointments.db'), (err) => {
   if (err) {
     console.error('Error opening appointment database', err.message);
   } else {
     console.log('Connected to the appointment SQLite database');
     
-    // Create doctors table with Indian healthcare specializations
     appointmentDb.serialize(() => {
       // Create doctors table
       appointmentDb.run(`
@@ -238,7 +242,7 @@ const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
         }
         console.log('Doctors table initialized');
 
-        // Check for existing doctors
+        // Add sample doctors if none exist
         appointmentDb.get('SELECT COUNT(*) as count FROM doctors', [], (err, result) => {
           if (err) {
             console.error('Error checking doctors count:', err.message);
@@ -246,48 +250,36 @@ const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
           }
 
           if (result.count === 0) {
-            // Updated sample doctors data to match app1.js
             const sampleDoctors = [
               {
                 name: 'John Smith',
                 specialization: 'Cardiology',
                 phone: '(123) 456-7890',
-                address: '123 Main St, Medical Center, Floor 3',
-                languages: 'English, Hindi',
-                availability: 'Mon-Sat: 9:00 AM - 5:00 PM'
+                address: '123 Main St, Medical Center, Floor 3'
               },
               {
                 name: 'Sarah Johnson',
                 specialization: 'Pediatrics',
                 phone: '(123) 456-7891',
-                address: '456 Health Ave, Children\'s Hospital, Wing B',
-                languages: 'English, Hindi',
-                availability: 'Mon-Fri: 10:00 AM - 6:00 PM'
+                address: '456 Health Ave, Children\'s Hospital, Wing B'
               },
               {
                 name: 'David Wilson',
                 specialization: 'Orthopedics',
                 phone: '(123) 456-7892',
-                address: '789 Hospital Blvd, Orthopedic Center, Suite 201',
-                languages: 'English, Hindi',
-                availability: 'Mon-Sat: 8:00 AM - 4:00 PM'
+                address: '789 Hospital Blvd, Orthopedic Center, Suite 201'
               },
               {
                 name: 'Emily Martinez',
                 specialization: 'Dermatology',
                 phone: '(123) 456-7893',
-                address: '321 Skin Care Lane, Medical Plaza, Room 105',
-                languages: 'English, Hindi',
-                availability: 'Mon-Fri: 9:00 AM - 5:00 PM'
+                address: '321 Skin Care Lane, Medical Plaza, Room 105'
               }
             ];
 
-            // Use transaction for inserting sample doctors
-            appointmentDb.run('BEGIN TRANSACTION');
-
             const stmt = appointmentDb.prepare(`
-              INSERT INTO doctors (name, specialization, phone, address, languages, availability) 
-              VALUES (?, ?, ?, ?, ?, ?)`
+              INSERT INTO doctors (name, specialization, phone, address)
+              VALUES (?, ?, ?, ?)`
             );
 
             sampleDoctors.forEach(doctor => {
@@ -296,8 +288,6 @@ const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
                 doctor.specialization,
                 doctor.phone,
                 doctor.address,
-                doctor.languages,
-                doctor.availability,
                 (err) => {
                   if (err) console.error('Error adding doctor:', err.message);
                 }
@@ -305,41 +295,33 @@ const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
             });
 
             stmt.finalize();
-
-            appointmentDb.run('COMMIT', (err) => {
-              if (err) {
-                console.error('Error committing sample doctors:', err.message);
-                appointmentDb.run('ROLLBACK');
-              } else {
-                console.log('Sample doctors added successfully');
-              }
-            });
+            console.log('Sample doctors added successfully');
           }
         });
       });
-    });
 
-    // Add database table for appointments
-    appointmentDb.run(`
-      CREATE TABLE IF NOT EXISTS appointments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fullName TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
-        doctorId INTEGER NOT NULL,
-        reason TEXT NOT NULL,
-        status TEXT DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (doctorId) REFERENCES doctors (id)
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating appointments table:', err.message);
-      } else {
-        console.log('Appointments table initialized');
-      }
+      // Create appointments table
+      appointmentDb.run(`
+        CREATE TABLE IF NOT EXISTS appointments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          fullName TEXT NOT NULL,
+          email TEXT NOT NULL,
+          phone TEXT NOT NULL,
+          date TEXT NOT NULL,
+          time TEXT NOT NULL,
+          doctorId INTEGER NOT NULL,
+          reason TEXT NOT NULL,
+          status TEXT DEFAULT 'pending',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (doctorId) REFERENCES doctors (id)
+        )
+      `, (err) => {
+        if (err) {
+          console.error('Error creating appointments table:', err.message);
+        } else {
+          console.log('Appointments table initialized');
+        }
+      });
     });
   }
 });
@@ -600,23 +582,23 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
 //===============================================
 
 // Serve Static HTML Pages
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'index.html')));
-app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'sign_up.html')));
-app.get('/signin', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'sign_in.html')));
-app.get('/main', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'main_websitepage.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sign_up.html')));
+app.get('/signin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sign_in.html')));
+app.get('/main', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'public', 'main_websitepage.html')));
 
 // Splash and onboarding routes
 app.get('/splash', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'splash.html'));
+    res.sendFile(path.join(__dirname, 'public', 'splash.html'));
 });
 
 app.get('/onboarding', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'advertisment_all_login_Connected.html'));
+    res.sendFile(path.join(__dirname, 'public', 'advertisment_all_login_Connected.html'));
 });
 
 // Emergency service route - accessible without login
 app.get('/emergency', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'final_guestpage.html'));
+    res.sendFile(path.join(__dirname, 'public', 'final_guestpage.html'));
 });
 
 // User Dashboard (Protected)
@@ -630,16 +612,16 @@ app.get('/dashboard', isAuthenticated, (req, res) => {
 
 // Recruitment page
 app.get('/recruitment', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'recruitement_page.html'));
+  res.sendFile(path.join(__dirname, 'public', 'recruitement_page.html'));
 });
 
 // Appointment booking routes
 app.get('/book-appointment', (req, res) => {
-  res.sendFile(path.resolve('c:/newsystem/frontend/book_appointment.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/doctor-appointment', (req, res) => {
-  res.sendFile(path.resolve('c:/newsystem/frontend/book_appointment.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 //===============================================
@@ -1009,7 +991,7 @@ app.post('/api/contact', (req, res) => {
 
 // Serve telehealth page
 app.get('/telehealth', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'telehealth_services.html'));
+  res.sendFile(path.join(__dirname, 'public', 'telehealth_services.html'));
 });
 
 // Submit consultation request
