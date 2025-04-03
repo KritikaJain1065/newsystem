@@ -288,11 +288,16 @@
                     throw new Error('Failed to fetch doctors');
                 }
                 
-                const doctors = await response.json();
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to fetch doctors');
+                }
+                
+                const doctors = data.doctors || [];
                 displayDoctors(doctors);
                 populateDoctorSelect(doctors);
             } catch (error) {
-                console.error(error);
+                console.error('Error fetching doctors:', error);
                 showMessage('Error loading doctors. Please try again later.', 'error');
             }
         }
@@ -347,11 +352,24 @@
         appointmentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             
+            // Basic validation
+            const phone = document.getElementById('phone').value;
+            if (!/^[0-9]{10}$/.test(phone)) {
+                showMessage('Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
+
+            const aadhaar = document.getElementById('aadhaar').value;
+            if (aadhaar && !/^[0-9]{12}$/.test(aadhaar)) {
+                showMessage('Please enter a valid 12-digit Aadhaar number', 'error');
+                return;
+            }
+
             const formData = {
                 fullName: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                aadhaar: document.getElementById('aadhaar').value || null,
+                phone: phone,
+                aadhaar: aadhaar || null,
                 date: document.getElementById('date').value,
                 time: document.getElementById('time').value,
                 doctorId: document.getElementById('doctorId').value,
@@ -360,7 +378,11 @@
                 insurance: document.getElementById('insurance').value || null
             };
             
+            console.log('Form Data:', formData);
+            console.log('API URL:', API_URL);
+            
             try {
+                console.log('Sending request to:', `${API_URL}/appointments`);
                 const response = await fetch(`${API_URL}/appointments`, {
                     method: 'POST',
                     headers: {
@@ -369,16 +391,26 @@
                     body: JSON.stringify(formData)
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to book appointment');
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Failed to parse JSON:', e);
+                    throw new Error('Server returned invalid response');
                 }
                 
-                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to book appointment');
+                }
+                
                 showMessage('Appointment booked successfully! We will send a confirmation SMS to your registered mobile number shortly.', 'success');
                 appointmentForm.reset();
             } catch (error) {
-                console.error(error);
+                console.error('Error details:', error);
                 showMessage(error.message || 'Error booking appointment. Please try again.', 'error');
             }
         });

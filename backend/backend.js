@@ -42,8 +42,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from multiple directories
-app.use(express.static(path.join(__dirname, 'frontend')));
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 app.use(express.static(path.join(__dirname, '..'))); // Serve files from parent directory
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -112,7 +112,7 @@ const upload = multer({
 
 // Initialize SQLite Databases
 // 1. Main Users Database
-const usersDb = new sqlite3.Database('./new_users.db', (err) => {
+const usersDb = new sqlite3.Database(path.join(__dirname, '../new_users.db'), (err) => {
     if (err) console.error('Database connection error:', err.message);
     else {
         console.log('Connected to users SQLite database');
@@ -127,7 +127,7 @@ const usersDb = new sqlite3.Database('./new_users.db', (err) => {
 });
 
 // 2. Staff Recruitment Database
-const recruitmentDb = new sqlite3.Database('./mediassist.db', (err) => {
+const recruitmentDb = new sqlite3.Database(path.join(__dirname, '../mediassist.db'), (err) => {
   if (err) {
     console.error('Error opening recruitment database', err.message);
   } else {
@@ -211,7 +211,7 @@ healthcareDb.serialize(() => {
 });
 
 // 2. Doctor Appointment Database
-const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
+const appointmentDb = new sqlite3.Database(path.join(__dirname, '../appointment_system.db'), (err) => {
   if (err) {
     console.error('Error opening appointment database', err.message);
   } else {
@@ -476,7 +476,7 @@ app.get('/api/doctors/:id', (req, res) => {
 });
 
 // 5. Telehealth Database
-const telehealthDb = new sqlite3.Database('./telehealth.db', (err) => {
+const telehealthDb = new sqlite3.Database(path.join(__dirname, '../telehealth.db'), (err) => {
   if (err) {
     console.error('Error opening telehealth database', err.message);
   } else {
@@ -600,23 +600,23 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
 //===============================================
 
 // Serve Static HTML Pages
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'index.html')));
-app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'sign_up.html')));
-app.get('/signin', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'sign_in.html')));
-app.get('/main', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'main_websitepage.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../frontend/main_websitepage.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, '../frontend/sign_up.html')));
+app.get('/signin', (req, res) => res.sendFile(path.join(__dirname, '../frontend/sign_in.html')));
+app.get('/main', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, '../frontend/main_websitepage.html')));
 
 // Splash and onboarding routes
 app.get('/splash', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'splash.html'));
+    res.sendFile(path.join(__dirname, '../frontend/splash.html'));
 });
 
 app.get('/onboarding', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'advertisment_all_login_Connected.html'));
+    res.sendFile(path.join(__dirname, '../frontend/advertisment_all_login_Connected.html'));
 });
 
 // Emergency service route - accessible without login
 app.get('/emergency', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'final_guestpage.html'));
+    res.sendFile(path.join(__dirname, '../frontend/final_guestpage.html'));
 });
 
 // User Dashboard (Protected)
@@ -630,16 +630,16 @@ app.get('/dashboard', isAuthenticated, (req, res) => {
 
 // Recruitment page
 app.get('/recruitment', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'recruitement_page.html'));
+  res.sendFile(path.join(__dirname, '../frontend/recruitement_page.html'));
 });
 
 // Appointment booking routes
 app.get('/book-appointment', (req, res) => {
-  res.sendFile(path.resolve('c:/newsystem/frontend/book_appointment.html'));
+  res.sendFile(path.join(__dirname, '../frontend/book_appointment.html'));
 });
 
 app.get('/doctor-appointment', (req, res) => {
-  res.sendFile(path.resolve('c:/newsystem/frontend/book_appointment.html'));
+  res.sendFile(path.join(__dirname, '../frontend/book_appointment.html'));
 });
 
 //===============================================
@@ -1009,7 +1009,7 @@ app.post('/api/contact', (req, res) => {
 
 // Serve telehealth page
 app.get('/telehealth', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'telehealth_services.html'));
+  res.sendFile(path.join(__dirname, '../frontend/telehealth_services.html'));
 });
 
 // Submit consultation request
@@ -1408,7 +1408,7 @@ app.delete('/api/appointments/:id', (req, res) => {
       });
     }
 
-    if (!appointment) {
+    if (!appointment) { 
       return res.status(404).json({
         message: 'Appointment not found'
       });

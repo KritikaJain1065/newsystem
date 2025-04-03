@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthCare Partners | Your Health Journey Starts Here</title>
+    <title>MediAssist | Your Health Journey Starts Here</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         * {
@@ -81,27 +81,17 @@
         }
 
         .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
-            font-weight: 700;
-            font-size: 1.5rem;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
         }
 
         .logo-icon {
-            margin-right: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
+            font-size: 2.8rem;
         }
 
         .nav-links {
@@ -1008,7 +998,7 @@
     <header>
         <nav>
             <div class="logo">
-                <span class="logo-icon">⚕️</span> HealthCare Partners
+                <span class="logo-icon">⚕️</span> MediAssist
             </div>
             <ul class="nav-links">
                 <li><a href="#home" data-translate="nav-home">Home</a></li>
@@ -1140,18 +1130,18 @@
             <div class="testimonial-container" id="testimonial-container">
                 <div class="testimonial">
                    
-                    <p class="testimonial-text">"The care I received at HealthCare Partners was exceptional. The doctors took the time to understand my concerns and developed a treatment plan that worked for me."</p>
+                    <p class="testimonial-text">"The care I received at MediAssist was exceptional. The doctors took the time to understand my concerns and developed a treatment plan that worked for me."</p>
                     <p class="testimonial-name">Sarah Johnson</p>
                     <p class="testimonial-role">Patient</p>
                 </div>
                 <div class="testimonial">
-                    <p class="testimonial-text">"I've been a patient at HealthCare Partners for over 5 years, and I wouldn't go anywhere else. The staff is friendly, the doctors are knowledgeable, and I always feel well-cared for."</p>
+                    <p class="testimonial-text">"I've been a patient at MediAssist for over 5 years, and I wouldn't go anywhere else. The staff is friendly, the doctors are knowledgeable, and I always feel well-cared for."</p>
                     <p class="testimonial-name">Michael Chen</p>
                     <p class="testimonial-role">Patient</p>
                 </div>
                 <div class="testimonial">
                   
-                    <p class="testimonial-text">"As someone with a chronic condition, finding the right healthcare provider was crucial. HealthCare Partners has been a game-changer for managing my health."</p>
+                    <p class="testimonial-text">"As someone with a chronic condition, finding the right healthcare provider was crucial. MediAssist has been a game-changer for managing my health."</p>
                     <p class="testimonial-name">Emma Rodriguez</p>
                     <p class="testimonial-role">Patient</p>
                 </div>
@@ -1168,7 +1158,7 @@
     <footer id="contact">
         <div class="footer-content">
             <div class="footer-column">
-                <h3>HealthCare Partners</h3>
+                <h3>MediAssist</h3>
                 <p>Providing quality healthcare services with a patient-centered approach for over 20 years.</p>
             </div>
             <div class="footer-column">
@@ -1197,12 +1187,12 @@
                     <li>123 Health Avenue</li>
                     <li>Wellness City, WC 12345</li>
                     <li>Phone: (123) 456-7890</li>
-                    <li>Email: info@healthcarepartners.com</li>
+                    <li>Email: info@mediassist.com</li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 HealthCare Partners. All Rights Reserved.</p>
+            <p>&copy; 2025 MediAssist. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -1268,13 +1258,13 @@
     <script>
         // Global variables
         let currentLanguage = 'en';
-        const API_BASE_URL = 'http://localhost:3000';
+        const API_BASE_URL = '/api';
 
         // Function to fetch translations from the backend
         async function fetchTranslations(lang) {
             try {
                 console.log(`Fetching translations for language: ${lang}`);
-                const response = await fetch(`${API_BASE_URL}/api/translations/${lang}`);
+                const response = await fetch(`${API_BASE_URL}/translations/${lang}`);
                 console.log('Response status:', response.status);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch translations: ${response.status} ${response.statusText}`);
@@ -1285,6 +1275,14 @@
             } catch (error) {
                 console.error('Error fetching translations:', error);
                 return null;
+            }
+        }
+
+        // Function to handle API errors
+        function handleApiError(error, element) {
+            console.error('API Error:', error);
+            if (element) {
+                element.textContent = 'Error loading content. Please try again later.';
             }
         }
 
@@ -1334,7 +1332,7 @@
                 currentLanguage = lang;
                 console.log('Language change completed successfully');
             } catch (error) {
-                console.error('Error changing language:', error);
+                handleApiError(error);
             }
         }
 

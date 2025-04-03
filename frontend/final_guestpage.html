@@ -317,10 +317,11 @@
         <div class="language-selector">
             <select id="language-select" onchange="changeLanguage()">
                 <option value="en">English</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="hi">हिंदी</option>
-
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="bn">বাংলা (Bengali)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="mr">मराठी (Marathi)</option>
             </select>
         </div>
     </header>
@@ -442,15 +443,6 @@
                 <div style="flex: 1 1 100%; display: flex; justify-content: center;">
                     <button class="btn" onclick="connectToNearestEmergency()" data-lang="connect-emergency">Connect to Nearest Emergency Service</button>
                 </div>
-            </div>
-            <!-- In the Emergency section, update the first aid video -->
-            <h3 data-lang="emergency-tips">First Aid Training</h3>
-            <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/VJcXD3Cw9-U" 
-                        title="First Aid Training" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen></iframe>
             </div>
         
         <section id="nearby">
@@ -609,8 +601,80 @@
 
 
     <script>
-       
-        
+        // Global variables
+        let currentLanguage = 'en';
+        const API_BASE_URL = '/api';
+
+        // Function to fetch translations from the backend
+        async function fetchTranslations(lang) {
+            try {
+                console.log(`Fetching translations for language: ${lang}`);
+                const response = await fetch(`${API_BASE_URL}/translations/${lang}`);
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch translations: ${response.status} ${response.statusText}`);
+                }
+                const data = await response.json();
+                console.log('Received translations:', data);
+                return data.translations;
+            } catch (error) {
+                console.error('Error fetching translations:', error);
+                return null;
+            }
+        }
+
+        // Function to handle API errors
+        function handleApiError(error, element) {
+            console.error('API Error:', error);
+            if (element) {
+        // Function to change language
+        async function changeLanguage() {
+            const lang = document.getElementById('language-select').value;
+            console.log(`Changing language to: ${lang}`);
+            
+            try {
+                const translations = await fetchTranslations(lang);
+                if (!translations) {
+                    console.error('Failed to load translations');
+                    return;
+                }
+
+                // Update all elements with data-lang attribute
+                const elements = document.querySelectorAll('[data-lang]');
+                console.log(`Found ${elements.length} translatable elements`);
+                
+                elements.forEach(element => {
+                    const key = element.getAttribute('data-lang');
+                    if (translations[key]) {
+                        element.textContent = translations[key];
+                        console.log(`Updated element with key ${key}`);
+                    } else {
+                        console.warn(`No translation found for key: ${key}`);
+                    }
+                });
+
+                // Save language preference
+                localStorage.setItem('preferredLanguage', lang);
+                currentLanguage = lang;
+                console.log('Language change completed successfully');
+            } catch (error) {
+                console.error('Error changing language:', error);
+            }
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load saved language preference
+            const savedLanguage = localStorage.getItem('preferredLanguage') || 'en';
+            console.log(`Loading saved language preference: ${savedLanguage}`);
+            
+            // Set the language selector value
+            document.getElementById('language-select').value = savedLanguage;
+            
+            // Apply translations
+            await changeLanguage();
+        });
+
         // Load YouTube videos after page load
         window.onload = function() {
             // Set default language
@@ -621,30 +685,6 @@
                 document.getElementById('campaign-notification').style.display = 'block';
             }, 5000);
         };
-
-        // Function to change language
-        function changeLanguage() {
-            const lang = document.getElementById('language-select').value;
-            const elements = document.querySelectorAll('[data-lang]');
-            
-            elements.forEach(element => {
-                const key = element.getAttribute('data-lang');
-                if (languages[lang] && languages[lang][key]) {
-                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                        element.placeholder = languages[lang][key];
-                    } else {
-                        element.textContent = languages[lang][key];
-                    }
-                } else if (languages['en'] && languages['en'][key]) {
-                    // Fallback to English
-                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                        element.placeholder = languages['en'][key];
-                    } else {
-                        element.textContent = languages['en'][key];
-                    }
-                }
-            });
-        }
 
         // Function to request mobile clinic
         function requestMobileClinic() {

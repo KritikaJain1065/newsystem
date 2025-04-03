@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -473,7 +474,7 @@ function getResponseFromDiseaseDatabase(userMessage) {
     
     // No match found
     return null;
-}  
+}
 
 // Function to format disease information into a user-friendly response
 function formatDiseaseResponse(disease, info, prefix = "") {

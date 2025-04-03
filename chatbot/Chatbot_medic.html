@@ -559,15 +559,56 @@
     </div>
 
     <script>
+        // Define backend URL
+        const BACKEND_URL = window.location.origin; // This will use the current server's URL
+        
+        // Initialize speech recognition if available
+        let recognition;
+        let isListening = false;
+        
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = function() {
+                isListening = true;
+                const voiceBtn = document.getElementById('voice-btn');
+                voiceBtn.querySelector('.button-icon').style.background = 'rgba(234, 67, 53, 0.2)';
+                voiceBtn.querySelector('i').className = 'fas fa-stop';
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                document.getElementById('message-input').value = transcript;
+                setTimeout(sendMessage, 500);
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                const voiceBtn = document.getElementById('voice-btn');
+                voiceBtn.querySelector('.button-icon').style.background = 'rgba(25, 118, 210, 0.1)';
+                voiceBtn.querySelector('i').className = 'fas fa-microphone';
+            };
+
+            recognition.onerror = function(event) {
+                isListening = false;
+                const voiceBtn = document.getElementById('voice-btn');
+                voiceBtn.querySelector('.button-icon').style.background = 'rgba(25, 118, 210, 0.1)';
+                voiceBtn.querySelector('i').className = 'fas fa-microphone';
+                console.error('Speech recognition error:', event.error);
+                addBotMessage("Sorry, I couldn't hear you properly. Please try again or type your message.");
+            };
+        } else {
+            document.getElementById('voice-btn').style.display = 'none';
+            addBotMessage("Voice input is not supported in your browser.");
+        }
+
         // Global variables
         let userLocation = null;
         let map = null;
         let marker = null;
-        let isListening = false;
-        let recognition = null;
-
-        // Backend URL
-        const BACKEND_URL = 'http://localhost:3000'; // Connect to the Node.js server
 
         // Initialize the chatbot when the page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -628,48 +669,6 @@
             }, 3000);
         }
 
-        // Setup speech recognition
-        function setupSpeechRecognition() {
-            if ('webkitSpeechRecognition' in window) {
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = 'en-US';
-
-                recognition.onstart = function() {
-                    isListening = true;
-                    const voiceBtn = document.getElementById('voice-btn');
-                    voiceBtn.querySelector('.button-icon').style.background = 'rgba(234, 67, 53, 0.2)';
-                    voiceBtn.querySelector('i').className = 'fas fa-stop';
-                };
-
-                recognition.onresult = function(event) {
-                    let transcript = event.results[0][0].transcript;
-                    document.getElementById('message-input').value = transcript;
-                    setTimeout(sendMessage, 500);
-                };
-
-                recognition.onend = function() {
-                    isListening = false;
-                    const voiceBtn = document.getElementById('voice-btn');
-                    voiceBtn.querySelector('.button-icon').style.background = 'rgba(25, 118, 210, 0.1)';
-                    voiceBtn.querySelector('i').className = 'fas fa-microphone';
-                };
-
-                recognition.onerror = function(event) {
-                    isListening = false;
-                    const voiceBtn = document.getElementById('voice-btn');
-                    voiceBtn.querySelector('.button-icon').style.background = 'rgba(25, 118, 210, 0.1)';
-                    voiceBtn.querySelector('i').className = 'fas fa-microphone';
-                    console.error('Speech recognition error:', event.error);
-                    addBotMessage("Sorry, I couldn't hear you properly. Please try again or type your message.");
-                };
-            } else {
-                document.getElementById('voice-btn').style.display = 'none';
-                addBotMessage("Voice input is not supported in your browser.");
-            }
-        }
-
         // Toggle voice input
         function toggleVoiceInput() {
             if (isListening) {
@@ -698,28 +697,17 @@
 
         // Send message to backend
         function sendMessageToBackend(userMessage) {
-            // Try the new API endpoint first
             fetch(`${BACKEND_URL}/api/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'user-id': getUserId() // Add a unique user ID
+                    'user-id': getUserId()
                 },
                 body: JSON.stringify({ message: userMessage })
             })
             .then(response => {
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        // If the /api/chat endpoint is not found, try the original /chat endpoint
-                        console.log("Falling back to /chat endpoint");
-                        return fallbackToOriginalEndpoint(userMessage);
-                    } else if (response.status === 429) {
-                        throw new Error('API quota exceeded.');
-                    } else if (response.status === 503) {
-                        throw new Error('Gemini model is unavailable.');
-                    } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
@@ -732,86 +720,19 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                
-                if (error.message && error.message.includes('Failed to fetch')) {
-                    // Network error, try fallback endpoint
-                    console.log("Network error, trying fallback endpoint");
-                    fallbackToOriginalEndpoint(userMessage);
-                    return;
-                }
-                
                 hideTypingIndicator();
-                if (error.message.includes('quota')) {
-                    addBotMessage("⚠ API quota exceeded. Please try again later.");
-                } else if (error.message.includes('Gemini')) {
-                    addBotMessage("⚠ The Gemini model is currently unavailable. Please try again later.");
-                } else {
-                    addBotMessage("⚠ Sorry, I'm having trouble processing your request right now. Please try again later.");
-                }
-            });
-        }
-
-        // Fallback to original endpoint
-        function fallbackToOriginalEndpoint(userMessage) {
-            return fetch(`${BACKEND_URL}/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'user-id': getUserId()
-                },
-                body: JSON.stringify({ message: userMessage })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 429) {
-                        throw new Error('API quota exceeded.');
-                    } else if (response.status === 503) {
-                        throw new Error('Gemini model is unavailable.');
-                    } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                }
-                return response.json();
-            })
-            .then(data => {
-                hideTypingIndicator();
-                
-                // Process the response from the original endpoint format
-                if (data.text) {
-                    const formattedText = formatMarkdown(data.text);
-                    addBotMessage(formattedText);
-                    
-                    // Handle videos in the original format
-                    if (data.videos && data.videos.length > 0) {
-                        data.videos.forEach(video => {
-                            addYoutubeVideo(video.id.videoId, video.snippet.title);
-                        });
-                    }
-                } else {
-                    // If there's no text, fallback to a default error message
-                    addBotMessage("I couldn't generate a response. Please try again later.");
-                }
-            })
-            .catch(error => {
-                hideTypingIndicator();
-                console.error('Error in fallback:', error);
-                addBotMessage("⚠ Sorry, I'm having trouble connecting to the server. Please check your connection and try again.");
+                addBotMessage("⚠ Sorry, I'm having trouble processing your request right now. Please try again later.");
             });
         }
 
         // Process bot response from backend
         function processResponse(data) {
-            if (data.answer) {
+            if (data.text) {
                 // Format markdown-style content
-                const formattedText = formatMarkdown(data.answer);
+                const formattedText = formatMarkdown(data.text);
                 addBotMessage(formattedText);
-            }
-            
-            if (data.relatedVideos && data.relatedVideos.length > 0) {
-                // Display YouTube videos
-                data.relatedVideos.forEach(video => {
-                    addYoutubeVideo(video.id, video.title);
-                });
+            } else {
+                addBotMessage("I couldn't generate a response. Please try again later.");
             }
         }
         

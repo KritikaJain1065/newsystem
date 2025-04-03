@@ -37,7 +37,11 @@ console.log('Environment variables loaded with default fallbacks if needed');
 console.log('Starting server...');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: '*', // In production, replace with your frontend domain
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -51,6 +55,16 @@ app.use(session({
     saveUninitialized: false,
     cookie: { secure: false }
 }));
+
+// Add this near your other middleware
+app.use((err, req, res, next) => {
+    console.error('Emergency Service Error:', err);
+    res.status(500).json({
+        success: false,
+        message: 'An error occurred processing your emergency request',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
 
 // Authentication Middleware
 const isAuthenticated = (req, res, next) => {
@@ -187,7 +201,7 @@ healthcareDb.serialize(() => {
     report TEXT,
     FOREIGN KEY(patient_id) REFERENCES patients(id)
   )`);
-
+ 
   // Create treatment plans table with updated schema
   healthcareDb.run(`CREATE TABLE treatment_plans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -209,11 +223,11 @@ healthcareDb.serialize(() => {
 // 4. Doctor Appointment Database
 const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
   if (err) {
-    console.error('Error opening appointment database', err.message);
+    console.error('Error opening appointment database:', err.message);
   } else {
     console.log('Connected to the appointment SQLite database');
     
-    // Create doctors table
+    // Create doctors table if it doesn't exist
     appointmentDb.run(`
       CREATE TABLE IF NOT EXISTS doctors (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -221,88 +235,82 @@ const appointmentDb = new sqlite3.Database('./appointment_system.db', (err) => {
         specialization TEXT NOT NULL,
         phone TEXT NOT NULL,
         address TEXT NOT NULL,
+        languages TEXT NOT NULL DEFAULT 'English, Hindi',
+        availability TEXT NOT NULL DEFAULT 'Mon-Sat: 9:00 AM - 5:00 PM',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `, (err) => {
       if (err) {
-        console.error('Error creating doctors table', err.message);
-      } else {
-        console.log('Doctors table initialized');
-      }
-    });
-
-    // Create appointments table
-    appointmentDb.run(`
-      CREATE TABLE IF NOT EXISTS appointments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fullName TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
-        doctorId INTEGER NOT NULL,
-        reason TEXT NOT NULL,
-        status TEXT DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (doctorId) REFERENCES doctors (id)
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating appointments table', err.message);
-      } else {
-        console.log('Appointments table initialized');
-      }
-    });
-
-    // Check if we have doctors in the database and add sample doctors if empty
-    appointmentDb.get('SELECT COUNT(*) as count FROM doctors', [], (err, result) => {
-      if (err) {
-        console.error('Error checking doctors count', err.message);
+        console.error('Error creating doctors table:', err.message);
         return;
       }
-      
-      if (result.count === 0) {
-        const sampleDoctors = [
-          {
-            name: 'John Smith',
-            specialization: 'Cardiology',
-            phone: '(123) 456-7890',
-            address: '123 Main St, Medical Center, Floor 3'
-          },
-          {
-            name: 'Sarah Johnson',
-            specialization: 'Pediatrics',
-            phone: '(123) 456-7891',
-            address: '456 Health Ave, Children\'s Hospital, Wing B'
-          },
-          {
-            name: 'David Wilson',
-            specialization: 'Orthopedics',
-            phone: '(123) 456-7892',
-            address: '789 Hospital Blvd, Orthopedic Center, Suite 201'
-          },
-          {
-            name: 'Emily Martinez',
-            specialization: 'Dermatology',
-            phone: '(123) 456-7893',
-            address: '321 Skin Care Lane, Medical Plaza, Room 105'
-          }
-        ];
+      console.log('Doctors table initialized');
 
-        for (const doctor of sampleDoctors) {
-          appointmentDb.run(
-            'INSERT INTO doctors (name, specialization, phone, address) VALUES (?, ?, ?, ?)',
-            [doctor.name, doctor.specialization, doctor.phone, doctor.address],
-            function(err) {
-              if (err) {
-                console.error('Error adding sample doctor', err.message);
-              }
-            }
-          );
+      // Check if we have any doctors in the database
+      appointmentDb.get('SELECT COUNT(*) as count FROM doctors', [], (err, result) => {
+        if (err) {
+          console.error('Error checking doctors count:', err.message);
+          return;
         }
-        
-        console.log('Sample doctors added to the database');
-      }
+
+        console.log(`Current number of doctors in database: ${result.count}`);
+
+        // Add sample doctors if none exist
+        if (result.count === 0) {
+          const sampleDoctors = [
+            {
+              name: 'John Smith',
+              specialization: 'Cardiology',
+              phone: '(123) 456-7890',
+              address: '123 Main St, Medical Center, Floor 3'
+            },
+            {
+              name: 'Sarah Johnson',
+              specialization: 'Pediatrics',
+              phone: '(123) 456-7891',
+              address: '456 Health Ave, Children\'s Hospital, Wing B'
+            },
+            {
+              name: 'David Wilson',
+              specialization: 'Orthopedics',
+              phone: '(123) 456-7892',
+              address: '789 Hospital Blvd, Orthopedic Center, Suite 201'
+            },
+            {
+              name: 'Emily Martinez',
+              specialization: 'Dermatology',
+              phone: '(123) 456-7893',
+              address: '321 Skin Care Lane, Medical Plaza, Room 105'
+            }
+          ];
+
+          const stmt = appointmentDb.prepare(`
+            INSERT INTO doctors (name, specialization, phone, address)
+            VALUES (?, ?, ?, ?)`
+          );
+
+          let insertedCount = 0;
+          sampleDoctors.forEach(doctor => {
+            stmt.run(
+              doctor.name,
+              doctor.specialization,
+              doctor.phone,
+              doctor.address,
+              (err) => {
+                if (err) {
+                  console.error('Error adding doctor:', err.message);
+                } else {
+                  insertedCount++;
+                  if (insertedCount === sampleDoctors.length) {
+                    console.log(`Successfully added ${insertedCount} sample doctors`);
+                    stmt.finalize();
+                  }
+                }
+              }
+            );
+          });
+        }
+      });
     });
   }
 });
@@ -393,6 +401,20 @@ const telehealthDb = new sqlite3.Database('./telehealth.db', (err) => {
         console.log('Emergency alerts table initialized');
       }
     });
+
+    // Create emergency_requests table
+    telehealthDb.run(`
+      CREATE TABLE IF NOT EXISTS emergency_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        location TEXT NOT NULL,
+        coordinates TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'dispatched',
+        nearest_service TEXT,
+        estimated_response TEXT,
+        emergency_id TEXT UNIQUE
+      )
+    `);
   }
 });
 
@@ -594,77 +616,77 @@ app.get('/admin/applications', (req, res) => {
 
 // API for emergency service
 app.post('/api/emergency-connect', (req, res) => {
-    const { location } = req.body;
+    const { location, coordinates } = req.body;
     
-    // In a real application, this would connect to emergency services database
-    // This is a simulation for demonstration
-    const emergencyResponse = {
-        success: true,
-        nearestService: "City Central Hospital",
-        estimatedResponse: "8-10 minutes",
-        emergencyId: "EM-" + Math.floor(Math.random() * 10000)
-    };
-    
-    // Save the emergency request to our mock DB
-    const request = {
-        id: uuidv4(),
-        location,
-        timestamp: new Date().toISOString(),
-        status: 'dispatched'
-    };
-    mockDB.emergencyRequests.push(request);
-    
-    // Simulate processing time
-    setTimeout(() => {
-        res.json(emergencyResponse);
-    }, 1000);
-});
-
-// API for mobile clinic requests
-app.post('/api/request-mobile-clinic', (req, res) => {
-    const { location, serviceType, date } = req.body;
-    
-    const newRequest = {
-        id: 'mc' + (mockDB.mobileClinics.length + 1).toString().padStart(3, '0'),
-        location,
-        date,
-        status: 'scheduled'
-    };
-    
-    mockDB.mobileClinics.push(newRequest);
-    
-    const response = {
-        success: true,
-        trackingId: newRequest.id,
-        estimatedArrival: date
-    };
-    
-    setTimeout(() => {
-        res.json(response);
-    }, 800);
-});
-
-// API for nearby facilities
-app.get('/api/nearby-facilities', (req, res) => {
-    const { location, type, radius } = req.query;
-    
-    // Filter facilities based on type
-    let facilities = mockDB.facilities;
-    if (type && type !== 'all') {
-        facilities = mockDB.facilities.filter(f => f.type === type);
+    if (!location) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Location is required' 
+        });
     }
-    
-    const response = {
-        success: true,
-        location: location,
-        radius: radius,
-        facilities: facilities
-    };
-    
-    setTimeout(() => {
-        res.json(response);
-    }, 1200);
+
+    const emergencyId = 'EM-' + Math.floor(Math.random() * 10000);
+    const estimatedResponse = '8-10 minutes';
+    const nearestService = findNearestService(coordinates);
+
+    telehealthDb.run(
+        `INSERT INTO emergency_requests (
+            location, coordinates, nearest_service, 
+            estimated_response, emergency_id
+        ) VALUES (?, ?, ?, ?, ?)`,
+        [
+            location,
+            JSON.stringify(coordinates),
+            nearestService,
+            estimatedResponse,
+            emergencyId
+        ],
+        function(err) {
+            if (err) {
+                console.error('Error saving emergency request:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to process emergency request'
+                });
+            }
+
+            res.json({
+                success: true,
+                emergencyId: emergencyId,
+                nearestService: nearestService,
+                estimatedResponse: estimatedResponse,
+                message: 'Emergency services have been notified'
+            });
+        }
+    );
 });
+
+// Helper function to find nearest service
+function findNearestService(coordinates) {
+    // If coordinates are provided, calculate nearest facility
+    if (coordinates) {
+        const facilities = mockDB.facilities.filter(f => f.emergency);
+        let nearest = facilities[0];
+        let shortestDistance = Number.MAX_VALUE;
+
+        facilities.forEach(facility => {
+            const distance = calculateDistance(
+                coordinates.lat,
+                coordinates.lng,
+                facility.location.lat,
+                facility.location.lng
+            );
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                nearest = facility;
+            }
+        });
+        return nearest.name;
+    }
+    return "City Central Hospital"; // Default fallback
+}
+
+
 
 //===============================================
 // HEALTH CAMPAIGNS API
@@ -1419,6 +1441,191 @@ app.post('/emergency', async (req, res) => {
     }
 });
 
+// Helper function to check if doctor is currently available
+function isAvailableNow(availabilityString) {
+  try {
+    const now = new Date();
+    const day = now.toLocaleDateString('en-US', { weekday: 'short' });
+    const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    // Parse availability string (e.g., "Mon-Sat: 9:00 AM - 5:00 PM")
+    const [days, hours] = availabilityString.split(': ');
+    const [startDay, endDay] = days.split('-');
+    const [startTime, endTime] = hours.split(' - ');
+    
+    // Check if current day is within working days
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const currentDayIndex = daysOfWeek.indexOf(day);
+    const startDayIndex = daysOfWeek.indexOf(startDay);
+    const endDayIndex = daysOfWeek.indexOf(endDay);
+    
+    if (currentDayIndex < startDayIndex || currentDayIndex > endDayIndex) {
+      return false;
+    }
+    
+    // Check if current time is within working hours
+    const currentTime = new Date(`01/01/2000 ${time}`);
+    const workStartTime = new Date(`01/01/2000 ${startTime}`);
+    const workEndTime = new Date(`01/01/2000 ${endTime}`);
+    
+    return currentTime >= workStartTime && currentTime <= workEndTime;
+  } catch (error) {
+    console.error('Error checking availability:', error);
+    return false;
+  }
+}
+
+// Modified API endpoint to get list of doctors with better error handling
+app.get('/api/doctors', (req, res) => {
+  console.log('Received request for doctors list');
+  
+  if (!appointmentDb) {
+    console.error('Database connection not established');
+    return res.status(500).json({
+      success: false,
+      message: 'Database connection error'
+    });
+  }
+
+  const queryTimeout = setTimeout(() => {
+    console.error('Database query timeout');
+    return res.status(500).json({
+      success: false,
+      message: 'Database query timeout'
+    });
+  }, 5000);
+
+  appointmentDb.all(`
+    SELECT 
+      id,
+      name,
+      specialization,
+      phone,
+      address,
+      languages,
+      availability,
+      created_at
+    FROM doctors 
+    ORDER BY name
+  `, [], (err, rows) => {
+    clearTimeout(queryTimeout);
+    
+    if (err) {
+      console.error('Error fetching doctors:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Error fetching doctors list',
+        error: err.message
+      });
+    }
+
+    console.log(`Found ${rows ? rows.length : 0} doctors in database`);
+
+    if (!rows || rows.length === 0) {
+      console.log('No doctors found in database');
+      return res.json({
+        success: true,
+        doctors: []
+      });
+    }
+
+    // Add additional information for each doctor
+    const doctorsWithInfo = rows.map(doctor => ({
+      ...doctor,
+      availabilityStatus: isAvailableNow(doctor.availability) ? 'Available' : 'Not Available',
+      rating: 4.5, // Default rating (in a real app, this would come from a ratings table)
+      consultationFee: '₹500 - ₹1000' // Default fee range (in a real app, this would be stored in the database)
+    }));
+
+    console.log('Successfully processed doctors list');
+    res.json({
+      success: true,
+      doctors: doctorsWithInfo
+    });
+  });
+});
+
+// Initialize database with sample doctors if needed
+function initializeDoctorsDatabase() {
+  appointmentDb.get('SELECT COUNT(*) as count FROM doctors', [], (err, result) => {
+    if (err) {
+      console.error('Error checking doctors count:', err);
+      return;
+    }
+
+    if (result.count === 0) {
+      console.log('No doctors found, adding sample doctors...');
+      const sampleDoctors = [
+        {
+          name: 'John Smith',
+          specialization: 'Cardiology',
+          phone: '(123) 456-7890',
+          address: '123 Main St, Medical Center, Floor 3',
+          languages: 'English, Hindi',
+          availability: 'Mon-Sat: 9:00 AM - 5:00 PM'
+        },
+        {
+          name: 'Sarah Johnson',
+          specialization: 'Pediatrics',
+          phone: '(123) 456-7891',
+          address: '456 Health Ave, Children\'s Hospital, Wing B',
+          languages: 'English, Hindi, Marathi',
+          availability: 'Mon-Fri: 10:00 AM - 6:00 PM'
+        },
+        {
+          name: 'David Wilson',
+          specialization: 'Orthopedics',
+          phone: '(123) 456-7892',
+          address: '789 Hospital Blvd, Orthopedic Center, Suite 201',
+          languages: 'English, Hindi, Gujarati',
+          availability: 'Mon-Sat: 9:00 AM - 5:00 PM'
+        },
+        {
+          name: 'Emily Martinez',
+          specialization: 'Dermatology',
+          phone: '(123) 456-7893',
+          address: '321 Skin Care Lane, Medical Plaza, Room 105',
+          languages: 'English, Hindi, Tamil',
+          availability: 'Mon-Fri: 11:00 AM - 7:00 PM'
+        }
+      ];
+
+      const stmt = appointmentDb.prepare(`
+        INSERT INTO doctors (name, specialization, phone, address, languages, availability)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+
+      let insertedCount = 0;
+      sampleDoctors.forEach(doctor => {
+        stmt.run(
+          doctor.name,
+          doctor.specialization,
+          doctor.phone,
+          doctor.address,
+          doctor.languages,
+          doctor.availability,
+          (err) => {
+            if (err) {
+              console.error('Error adding doctor:', err);
+            } else {
+              insertedCount++;
+              if (insertedCount === sampleDoctors.length) {
+                console.log(`Successfully added ${insertedCount} sample doctors`);
+                stmt.finalize();
+              }
+            }
+          }
+        );
+      });
+    } else {
+      console.log(`Database already contains ${result.count} doctors`);
+    }
+  });
+}
+
+// Call initializeDoctorsDatabase when the server starts
+initializeDoctorsDatabase();
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`MediAssist server running on port ${PORT}`);
@@ -1429,4 +1636,4 @@ app.listen(PORT, () => {
     console.log(`  - http://localhost:${PORT}/emergency (emergency assistance endpoint)`);
     console.log(`  - http://localhost:${PORT}/api/maps-key (maps API endpoint)`);
     console.log('Chatbot successfully integrated with main backend!');
-}); 
+});
