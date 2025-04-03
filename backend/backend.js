@@ -42,12 +42,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend directory
+// Serve static files - simplified configuration
 app.use(express.static(path.join(__dirname, '../frontend')));
-app.use(express.static(path.join(__dirname, '..'))); // Serve files from parent directory
-app.use('/static', express.static(path.join(__dirname, 'static')));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Root route handler
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+// Catch-all route for SPA-like behavior
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 app.use(session({
     secret: 'your-secret-key',
@@ -217,7 +223,7 @@ const appointmentDb = new sqlite3.Database(path.join(__dirname, '../appointment_
   } else {
     console.log('Connected to the appointment SQLite database');
     
-    // Create doctors table with Indian healthcare specializations
+    // Create doctors table with proper schema and indexes
     appointmentDb.serialize(() => {
       // Create doctors table
       appointmentDb.run(`
@@ -237,119 +243,123 @@ const appointmentDb = new sqlite3.Database(path.join(__dirname, '../appointment_
           return;
         }
         console.log('Doctors table initialized');
-
-        // Check for existing doctors
-        appointmentDb.get('SELECT COUNT(*) as count FROM doctors', [], (err, result) => {
-          if (err) {
-            console.error('Error checking doctors count:', err.message);
-            return;
-          }
-
-          if (result.count === 0) {
-            // Updated sample doctors data to match app1.js
-            const sampleDoctors = [
-              {
-                name: 'John Smith',
-                specialization: 'Cardiology',
-                phone: '(123) 456-7890',
-                address: '123 Main St, Medical Center, Floor 3',
-                languages: 'English, Hindi',
-                availability: 'Mon-Sat: 9:00 AM - 5:00 PM'
-              },
-              {
-                name: 'Sarah Johnson',
-                specialization: 'Pediatrics',
-                phone: '(123) 456-7891',
-                address: '456 Health Ave, Children\'s Hospital, Wing B',
-                languages: 'English, Hindi',
-                availability: 'Mon-Fri: 10:00 AM - 6:00 PM'
-              },
-              {
-                name: 'David Wilson',
-                specialization: 'Orthopedics',
-                phone: '(123) 456-7892',
-                address: '789 Hospital Blvd, Orthopedic Center, Suite 201',
-                languages: 'English, Hindi',
-                availability: 'Mon-Sat: 8:00 AM - 4:00 PM'
-              },
-              {
-                name: 'Emily Martinez',
-                specialization: 'Dermatology',
-                phone: '(123) 456-7893',
-                address: '321 Skin Care Lane, Medical Plaza, Room 105',
-                languages: 'English, Hindi',
-                availability: 'Mon-Fri: 9:00 AM - 5:00 PM'
-              }
-            ];
-
-            // Use transaction for inserting sample doctors
-            appointmentDb.run('BEGIN TRANSACTION');
-
-            const stmt = appointmentDb.prepare(`
-              INSERT INTO doctors (name, specialization, phone, address, languages, availability) 
-              VALUES (?, ?, ?, ?, ?, ?)`
-            );
-
-            sampleDoctors.forEach(doctor => {
-              stmt.run(
-                doctor.name,
-                doctor.specialization,
-                doctor.phone,
-                doctor.address,
-                doctor.languages,
-                doctor.availability,
-                (err) => {
-                  if (err) console.error('Error adding doctor:', err.message);
-                }
-              );
-            });
-
-            stmt.finalize();
-
-            appointmentDb.run('COMMIT', (err) => {
-              if (err) {
-                console.error('Error committing sample doctors:', err.message);
-                appointmentDb.run('ROLLBACK');
-              } else {
-                console.log('Sample doctors added successfully');
-              }
-            });
-          }
-        });
       });
-    });
 
-    // Add database table for appointments
-    appointmentDb.run(`
-      CREATE TABLE IF NOT EXISTS appointments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fullName TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
-        doctorId INTEGER NOT NULL,
-        reason TEXT NOT NULL,
-        status TEXT DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (doctorId) REFERENCES doctors (id)
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating appointments table:', err.message);
-      } else {
-        console.log('Appointments table initialized');
-      }
+      // Create index on specialization for better query performance
+      appointmentDb.run(`
+        CREATE INDEX IF NOT EXISTS idx_doctors_specialization 
+        ON doctors(specialization)
+      `, (err) => {
+        if (err) {
+          console.error('Error creating specialization index:', err.message);
+        }
+      });
+
+      // Initialize sample doctors if none exist
+      appointmentDb.get('SELECT COUNT(*) as count FROM doctors', [], (err, result) => {
+        if (err) {
+          console.error('Error checking doctors count:', err.message);
+          return;
+        }
+
+        if (result.count === 0) {
+          const sampleDoctors = [
+            {
+              name: 'John Smith',
+              specialization: 'Cardiology',
+              phone: '(123) 456-7890',
+              address: '123 Main St, Medical Center, Floor 3',
+              languages: 'English, Hindi',
+              availability: 'Mon-Sat: 9:00 AM - 5:00 PM'
+            },
+            {
+              name: 'Sarah Johnson',
+              specialization: 'Pediatrics',
+              phone: '(123) 456-7891',
+              address: '456 Health Ave, Children\'s Hospital, Wing B',
+              languages: 'English, Hindi, Marathi',
+              availability: 'Mon-Fri: 10:00 AM - 6:00 PM'
+            },
+            {
+              name: 'David Wilson',
+              specialization: 'Orthopedics',
+              phone: '(123) 456-7892',
+              address: '789 Hospital Blvd, Orthopedic Center, Suite 201',
+              languages: 'English, Hindi, Gujarati',
+              availability: 'Mon-Sat: 8:00 AM - 4:00 PM'
+            },
+            {
+              name: 'Emily Martinez',
+              specialization: 'Dermatology',
+              phone: '(123) 456-7893',
+              address: '321 Skin Care Lane, Medical Plaza, Room 105',
+              languages: 'English, Hindi, Tamil',
+              availability: 'Mon-Fri: 9:00 AM - 5:00 PM'
+            }
+          ];
+
+          // Use transaction for inserting sample doctors
+          appointmentDb.run('BEGIN TRANSACTION');
+
+          const stmt = appointmentDb.prepare(`
+            INSERT INTO doctors (name, specialization, phone, address, languages, availability) 
+            VALUES (?, ?, ?, ?, ?, ?)`
+          );
+
+          let insertedCount = 0;
+          let hasError = false;
+
+          sampleDoctors.forEach(doctor => {
+            stmt.run(
+              doctor.name,
+              doctor.specialization,
+              doctor.phone,
+              doctor.address,
+              doctor.languages,
+              doctor.availability,
+              (err) => {
+                if (err) {
+                  console.error('Error adding doctor:', err.message);
+                  hasError = true;
+                } else {
+                  insertedCount++;
+                }
+
+                if (insertedCount === sampleDoctors.length) {
+                  stmt.finalize();
+                  if (hasError) {
+                    appointmentDb.run('ROLLBACK', (err) => {
+                      if (err) console.error('Error rolling back transaction:', err.message);
+                      else console.log('Transaction rolled back due to errors');
+                    });
+                  } else {
+                    appointmentDb.run('COMMIT', (err) => {
+                      if (err) {
+                        console.error('Error committing transaction:', err.message);
+                        appointmentDb.run('ROLLBACK');
+                      } else {
+                        console.log(`Successfully added ${insertedCount} sample doctors`);
+                      }
+                    });
+                  }
+                }
+              }
+            );
+          });
+        }
+      });
     });
   }
 });
 
-// Modified API endpoint to get list of doctors with better error handling
+// Modified API endpoint to get list of doctors with consistent response format
 app.get('/api/doctors', (req, res) => {
   console.log('Received request for doctors list');
+  
   if (!appointmentDb) {
     console.error('Database connection not established');
     return res.status(500).json({
+      success: false,
       message: 'Database connection error'
     });
   }
@@ -357,6 +367,7 @@ app.get('/api/doctors', (req, res) => {
   const queryTimeout = setTimeout(() => {
     console.error('Database query timeout');
     return res.status(500).json({
+      success: false,
       message: 'Database query timeout'
     });
   }, 5000);
@@ -379,6 +390,7 @@ app.get('/api/doctors', (req, res) => {
     if (err) {
       console.error('Error fetching doctors:', err);
       return res.status(500).json({
+        success: false,
         message: 'Error fetching doctors list',
         error: err.message
       });
@@ -387,7 +399,10 @@ app.get('/api/doctors', (req, res) => {
     console.log(`Found ${rows ? rows.length : 0} doctors in database`);
 
     if (!rows || rows.length === 0) {
-      return res.json([]);
+      return res.json({
+        success: true,
+        doctors: []
+      });
     }
 
     // Add additional information for each doctor
@@ -399,8 +414,10 @@ app.get('/api/doctors', (req, res) => {
     }));
 
     console.log('Successfully processed doctors list');
-    // Return doctors array directly like in app1.js
-    res.json(doctorsWithInfo);
+    res.json({
+      success: true,
+      doctors: doctorsWithInfo
+    });
   });
 });
 
@@ -648,16 +665,16 @@ app.get('/doctor-appointment', (req, res) => {
 
 // User Registration (Sign Up)
 app.post('/api/signup', async (req, res) => {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+        const { username, email, password } = req.body;
+        if (!username || !email || !password) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
     try {
         const user = await new Promise((resolve, reject) => {
             usersDb.get('SELECT * FROM users WHERE username = ? OR email = ?', [username, email], (err, user) => {
-                if (err) reject(err);
-                else resolve(user);
+                    if (err) reject(err);
+                    else resolve(user);
             });
         });
 
@@ -669,7 +686,7 @@ app.post('/api/signup', async (req, res) => {
                 [username, email, hash], function(err) {
                     if (err) reject(err);
                     else resolve(this.lastID);
-            });
+        });
         });
 
         res.status(201).json({ success: true, message: 'User registered successfully' });
@@ -681,10 +698,10 @@ app.post('/api/signup', async (req, res) => {
 
 // User Login (Sign In)
 app.post('/api/signin', (req, res) => {
-    const { email, password } = req.body;
+        const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ success: false, message: 'Email and password are required' });
 
-    usersDb.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+            usersDb.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
         if (err) return res.status(500).json({ success: false, message: 'Database error' });
         if (!user) return res.status(401).json({ success: false, message: 'Invalid email or password' });
 
@@ -1408,7 +1425,7 @@ app.delete('/api/appointments/:id', (req, res) => {
       });
     }
 
-    if (!appointment) { 
+    if (!appointment) {
       return res.status(404).json({
         message: 'Appointment not found'
       });
