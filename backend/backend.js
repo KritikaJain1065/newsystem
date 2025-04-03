@@ -499,111 +499,258 @@ const telehealthDb = new sqlite3.Database(path.join(__dirname, '../telehealth.db
   } else {
     console.log('Connected to the telehealth SQLite database');
     
-    // Create consultations table
+    // Create facilities table for Indian healthcare facilities
     telehealthDb.run(`
-      CREATE TABLE IF NOT EXISTS consultations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fullName TEXT NOT NULL,
-        email TEXT NOT NULL,
+      CREATE TABLE IF NOT EXISTS facilities (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        address TEXT NOT NULL,
         phone TEXT NOT NULL,
-        problem TEXT NOT NULL,
-        location TEXT,
-        status TEXT DEFAULT 'pending',
+        emergency BOOLEAN NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        city TEXT NOT NULL,
+        state TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `, (err) => {
       if (err) {
-        console.error('Error creating consultations table', err.message);
+        console.error('Error creating facilities table:', err.message);
       } else {
-        console.log('Consultations table initialized');
+        console.log('Facilities table initialized');
+        
+        // Add sample Indian healthcare facilities
+        const sampleFacilities = [
+          {
+            id: 'f001',
+            name: "AIIMS Delhi",
+            type: "hospital",
+            address: "Sri Aurobindo Marg, Ansari Nagar, New Delhi, Delhi 110029",
+            phone: "011-2658-8500",
+            emergency: true,
+            latitude: 28.5672,
+            longitude: 77.2100,
+            city: "New Delhi",
+            state: "Delhi"
+          },
+          {
+            id: 'f002',
+            name: "Tata Memorial Hospital",
+            type: "hospital",
+            address: "Dr. E Borges Road, Parel, Mumbai, Maharashtra 400012",
+            phone: "022-2417-7000",
+            emergency: true,
+            latitude: 18.9937,
+            longitude: 72.8429,
+            city: "Mumbai",
+            state: "Maharashtra"
+          },
+          {
+            id: 'f003',
+            name: "Apollo Pharmacy",
+            type: "pharmacy",
+            address: "MG Road, Bangalore, Karnataka 560001",
+            phone: "080-2558-3911",
+            emergency: false,
+            latitude: 12.9716,
+            longitude: 77.5946,
+            city: "Bangalore",
+            state: "Karnataka"
+          },
+          {
+            id: 'f004',
+            name: "Medanta - The Medicity",
+            type: "hospital",
+            address: "CH Baktawar Singh Rd, Medicity, Gurugram, Haryana 122001",
+            phone: "0124-4141-414",
+            emergency: true,
+            latitude: 28.4397,
+            longitude: 77.0401,
+            city: "Gurugram",
+            state: "Haryana"
+          },
+          {
+            id: 'f005',
+            name: "Fortis Healthcare",
+            type: "clinic",
+            address: "Sector 62, Noida, Uttar Pradesh 201301",
+            phone: "0120-4300-222",
+            emergency: true,
+            latitude: 28.6139,
+            longitude: 77.3592,
+            city: "Noida",
+            state: "Uttar Pradesh"
+          }
+        ];
+
+        // Insert sample facilities
+        const stmt = telehealthDb.prepare(`
+          INSERT OR REPLACE INTO facilities 
+          (id, name, type, address, phone, emergency, latitude, longitude, city, state) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        );
+
+        sampleFacilities.forEach(facility => {
+          stmt.run(
+            facility.id,
+            facility.name,
+            facility.type,
+            facility.address,
+            facility.phone,
+            facility.emergency ? 1 : 0,
+            facility.latitude,
+            facility.longitude,
+            facility.city,
+            facility.state
+          );
+        });
+
+        stmt.finalize();
       }
     });
 
-    // Create insurance_verifications table
+    // Create mobile_clinics table
     telehealthDb.run(`
-      CREATE TABLE IF NOT EXISTS insurance_verifications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        provider TEXT NOT NULL,
-        memberId TEXT NOT NULL,
-        fullName TEXT,
-        email TEXT,
-        verified BOOLEAN DEFAULT 0,
-        followUp BOOLEAN DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating insurance verifications table', err.message);
-      } else {
-        console.log('Insurance verifications table initialized');
-      }
-    });
-
-    // Create telehealth_appointments table
-    telehealthDb.run(`
-      CREATE TABLE IF NOT EXISTS telehealth_appointments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+      CREATE TABLE IF NOT EXISTS mobile_clinics (
+        id TEXT PRIMARY KEY,
+        location TEXT NOT NULL,
         date TEXT NOT NULL,
-        time TEXT NOT NULL,
-        specialty TEXT NOT NULL,
-        fullName TEXT NOT NULL,
-        email TEXT NOT NULL,
-        status TEXT DEFAULT 'scheduled',
+        status TEXT NOT NULL,
+        city TEXT NOT NULL,
+        state TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `, (err) => {
       if (err) {
-        console.error('Error creating telehealth appointments table', err.message);
+        console.error('Error creating mobile_clinics table:', err.message);
       } else {
-        console.log('Telehealth appointments table initialized');
+        console.log('Mobile clinics table initialized');
+        
+        // Add sample mobile clinic data
+        const sampleMobileClinics = [
+          {
+            id: 'mc001',
+            location: 'Dharavi',
+            date: '2025-03-25',
+            status: 'scheduled',
+            city: 'Mumbai',
+            state: 'Maharashtra'
+          },
+          {
+            id: 'mc002',
+            location: 'Chandni Chowk',
+            date: '2025-03-27',
+            status: 'in-transit',
+            city: 'Delhi',
+            state: 'Delhi'
+          }
+        ];
+
+        const stmt = telehealthDb.prepare(`
+          INSERT OR REPLACE INTO mobile_clinics 
+          (id, location, date, status, city, state) 
+          VALUES (?, ?, ?, ?, ?, ?)`
+        );
+
+        sampleMobileClinics.forEach(clinic => {
+          stmt.run(
+            clinic.id,
+            clinic.location,
+            clinic.date,
+            clinic.status,
+            clinic.city,
+            clinic.state
+          );
+        });
+
+        stmt.finalize();
       }
     });
 
-    // Create emergency_alerts table
+    // Create health_campaigns table
     telehealthDb.run(`
-      CREATE TABLE IF NOT EXISTS emergency_alerts (
+      CREATE TABLE IF NOT EXISTS health_campaigns (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        description TEXT NOT NULL,
+        target_area TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Error creating health_campaigns table:', err.message);
+      } else {
+        console.log('Health campaigns table initialized');
+        
+        // Add sample health campaign data
+        const sampleCampaigns = [
+          {
+            id: 'c001',
+            name: "Pulse Polio Immunization",
+            type: "vaccination",
+            start_date: "2025-03-28",
+            end_date: "2025-04-28",
+            description: "National immunization drive for polio prevention",
+            target_area: "Pan India"
+          },
+          {
+            id: 'c002',
+            name: "Ayushman Bharat Health Camp",
+            type: "health_checkup",
+            start_date: "2025-04-15",
+            end_date: "2025-05-15",
+            description: "Free health checkup and awareness camp",
+            target_area: "Rural India"
+          }
+        ];
+
+        const stmt = telehealthDb.prepare(`
+          INSERT OR REPLACE INTO health_campaigns 
+          (id, name, type, start_date, end_date, description, target_area) 
+          VALUES (?, ?, ?, ?, ?, ?, ?)`
+        );
+
+        sampleCampaigns.forEach(campaign => {
+          stmt.run(
+            campaign.id,
+            campaign.name,
+            campaign.type,
+            campaign.start_date,
+            campaign.end_date,
+            campaign.description,
+            campaign.target_area
+          );
+        });
+
+        stmt.finalize();
+      }
+    });
+
+    // Create emergency_requests table
+    telehealthDb.run(`
+      CREATE TABLE IF NOT EXISTS emergency_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fullName TEXT NOT NULL,
+        emergency_id TEXT UNIQUE,
         location TEXT NOT NULL,
         coordinates TEXT,
-        emergency_type TEXT,
-        estimated_response_time INTEGER,
-        status TEXT DEFAULT 'active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'dispatched',
+        nearest_service TEXT,
+        estimated_response TEXT
       )
     `, (err) => {
       if (err) {
-        console.error('Error creating emergency_alerts table:', err.message);
+        console.error('Error creating emergency_requests table:', err.message);
       } else {
-        console.log('Emergency alerts table initialized');
+        console.log('Emergency requests table initialized');
       }
     });
   }
 });
-
-// Mock data for guest page backend
-const mockDB = {
-  mobileClinics: [
-    { id: 'mc001', location: 'Downtown', date: '2025-03-25', status: 'scheduled' },
-    { id: 'mc002', location: 'Riverside', date: '2025-03-27', status: 'in-transit' }
-  ],
-  facilities: [
-    { id: 'f001', name: "Community Health Center", type: "health-center", address: "123 Main St", phone: "555-1234", emergency: true, location: { lat: 40.7128, lng: -74.0060 } },
-    { id: 'f002', name: "City Hospital", type: "hospital", address: "456 Oak Ave", phone: "555-5678", emergency: true, location: { lat: 40.7138, lng: -74.0050 } },
-    { id: 'f003', name: "MediPlus Pharmacy", type: "pharmacy", address: "789 Elm St", phone: "555-9012", emergency: false, location: { lat: 40.7118, lng: -74.0070 } },
-    { id: 'f004', name: "Family Care Clinic", type: "clinic", address: "321 Pine Rd", phone: "555-3456", emergency: false, location: { lat: 40.7108, lng: -74.0080 } },
-    { id: 'f005', name: "Urgent Care Center", type: "clinic", address: "555 Cedar Blvd", phone: "555-7890", emergency: true, location: { lat: 40.7148, lng: -74.0040 } }
-  ],
-  contacts: [],
-  emergencyRequests: [],
-  campaigns: [
-    { id: 'c001', name: "Vaccination Awareness", type: "vaccination", startDate: "2025-03-28", endDate: "2025-04-28" },
-    { id: 'c002', name: "Diabetes Prevention", type: "diabetes", startDate: "2025-04-15", endDate: "2025-05-15" }
-  ],
-  users: [
-    { id: 'u001', name: "John Doe", email: "john@example.com", phone: "555-1111" }
-  ]
-};
 
 // Helper function to calculate distance
 function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -786,78 +933,149 @@ app.get('/admin/applications', (req, res) => {
 // EMERGENCY SERVICES API
 //===============================================
 
+// Helper function to find nearest service
+function findNearestService(coordinates) {
+  // For now, return a default service
+  // In a real application, this would calculate the nearest service based on coordinates
+  return "AIIMS Delhi";
+}
+
 // API for emergency service
 app.post('/api/emergency-connect', (req, res) => {
-    const { location } = req.body;
+    const { location, coordinates } = req.body;
     
-    // In a real application, this would connect to emergency services database
-    // This is a simulation for demonstration
-    const emergencyResponse = {
-        success: true,
-        nearestService: "City Central Hospital",
-        estimatedResponse: "8-10 minutes",
-        emergencyId: "EM-" + Math.floor(Math.random() * 10000)
-    };
-    
-    // Save the emergency request to our mock DB
-    const request = {
-        id: uuidv4(),
-        location,
-        timestamp: new Date().toISOString(),
-        status: 'dispatched'
-    };
-    mockDB.emergencyRequests.push(request);
-    
-    // Simulate processing time
-    setTimeout(() => {
-        res.json(emergencyResponse);
-    }, 1000);
+    if (!location) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Location is required' 
+        });
+    }
+
+    const emergencyId = 'EM-' + Math.floor(Math.random() * 10000);
+    const estimatedResponse = '8-10 minutes';
+    const nearestService = findNearestService(coordinates);
+
+    telehealthDb.run(
+        `INSERT INTO emergency_requests (
+            emergency_id, location, coordinates, nearest_service, estimated_response
+        ) VALUES (?, ?, ?, ?, ?)`,
+        [
+            emergencyId,
+            location,
+            coordinates ? JSON.stringify(coordinates) : null,
+            nearestService,
+            estimatedResponse
+        ],
+        function(err) {
+            if (err) {
+                console.error('Error saving emergency request:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to process emergency request'
+                });
+            }
+
+            res.json({
+                success: true,
+                emergencyId: emergencyId,
+                nearestService: nearestService,
+                estimatedResponse: estimatedResponse,
+                message: 'Emergency services have been notified'
+            });
+        }
+    );
+});
+
+// Get emergency request status
+app.get('/api/emergency-status/:emergencyId', (req, res) => {
+    const { emergencyId } = req.params;
+
+    telehealthDb.get(
+        'SELECT * FROM emergency_requests WHERE emergency_id = ?',
+        [emergencyId],
+        (err, request) => {
+            if (err) {
+                console.error('Error fetching emergency status:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error fetching emergency status'
+                });
+            }
+
+            if (!request) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Emergency request not found'
+                });
+            }
+
+            res.json({
+                success: true,
+                status: request.status,
+                nearestService: request.nearest_service,
+                estimatedResponse: request.estimated_response,
+                timestamp: request.timestamp
+            });
+        }
+    );
 });
 
 // API for mobile clinic requests
 app.post('/api/request-mobile-clinic', (req, res) => {
-    const { location, serviceType, date } = req.body;
+    const { location, serviceType, date, city, state } = req.body;
     
-    const newRequest = {
-        id: 'mc' + (mockDB.mobileClinics.length + 1).toString().padStart(3, '0'),
-        location,
-        date,
-        status: 'scheduled'
-    };
+    const id = 'mc' + Date.now();
     
-    mockDB.mobileClinics.push(newRequest);
-    
-    const response = {
-        success: true,
-        trackingId: newRequest.id,
-        estimatedArrival: date
-    };
-    
-    setTimeout(() => {
-        res.json(response);
-    }, 800);
+    telehealthDb.run(
+        `INSERT INTO mobile_clinics (id, location, date, status, city, state) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [id, location, date, 'scheduled', city, state],
+        function(err) {
+            if (err) {
+                console.error('Error creating mobile clinic request:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error processing request'
+                });
+            }
+            
+            res.json({
+                success: true,
+                trackingId: id,
+                estimatedArrival: date
+            });
+        }
+    );
 });
 
 // API for nearby facilities
 app.get('/api/nearby-facilities', (req, res) => {
     const { location, type, radius } = req.query;
     
-    // Filter facilities based on type
-    let facilities = mockDB.facilities;
+    let query = 'SELECT * FROM facilities';
+    const params = [];
+    
     if (type && type !== 'all') {
-        facilities = mockDB.facilities.filter(f => f.type === type);
+        query += ' WHERE type = ?';
+        params.push(type);
     }
     
-    const response = {
-        success: true,
-        location: location,
-        radius: radius,
-        facilities: facilities
-    };
-    
-    setTimeout(() => {
-        res.json(response);
-    }, 1200);
+    telehealthDb.all(query, params, (err, facilities) => {
+        if (err) {
+            console.error('Error fetching facilities:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching facilities'
+            });
+        }
+        
+        res.json({
+            success: true,
+            location: location,
+            radius: radius,
+            facilities: facilities
+        });
+    });
 });
 
 //===============================================
@@ -866,35 +1084,20 @@ app.get('/api/nearby-facilities', (req, res) => {
 
 // Indian Health Campaigns API
 app.get('/api/health-campaigns', (req, res) => {
-    const campaigns = [
-        {
-            id: 1,
-            title: "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)",
-            shortDescription: "Provides health coverage up to ₹5 lakhs per family per year for secondary and tertiary care hospitalization.",
-            fullDescription: "Ayushman Bharat PM-JAY is the largest health assurance scheme in the world which aims at providing a health cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization.",
-            eligibility: "Economically vulnerable families identified through Socio-Economic Caste Census (SECC) 2011 data",
-            benefits: ["Cashless and paperless access to healthcare services", "No cap on family size, age or gender", "Pre-existing diseases covered", "All costs related to treatment covered"],
-            applicationProcess: "Visit your nearest Ayushman Bharat Kendra, Common Service Centre, or register through the official PM-JAY portal.",
-            officialWebsite: "https://pmjay.gov.in/",
-            applicationLink: "https://pmjay.gov.in/beneficiary/login",
-            contactNumber: "14555",
-            lastUpdated: "2023-05-15"
-        },
-        {
-            id: 2,
-            title: "National Health Mission (NHM)",
-            shortDescription: "Umbrella program for various health initiatives aimed at improving healthcare for rural and urban populations.",
-            fullDescription: "The National Health Mission encompasses two sub-missions: the National Rural Health Mission (NRHM) and the National Urban Health Mission (NUHM) to provide accessible, affordable and quality healthcare to the rural and urban population.",
-            eligibility: "All citizens of India",
-            benefits: ["Improved access to quality healthcare", "Reduced out-of-pocket expenses", "Focus on maternal and child health", "Prevention and control of communicable and non-communicable diseases"],
-            applicationProcess: "Access services through government hospitals, health centers, and accredited social health activists (ASHAs).",
-            officialWebsite: "https://nhm.gov.in/",
-            contactNumber: "1800-180-1104",
-            lastUpdated: "2023-06-10"
+    telehealthDb.all('SELECT * FROM health_campaigns ORDER BY start_date', [], (err, campaigns) => {
+        if (err) {
+            console.error('Error fetching campaigns:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching campaigns'
+            });
         }
-    ];
-    
-    res.json({ success: true, campaigns });
+        
+        res.json({
+            success: true,
+            campaigns: campaigns
+        });
+    });
 });
 
 //===============================================

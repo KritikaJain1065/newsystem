@@ -627,6 +627,10 @@
         function handleApiError(error, element) {
             console.error('API Error:', error);
             if (element) {
+                element.innerHTML = '<p>Error loading content. Please try again later.</p>';
+            }
+        }
+
         // Function to change language
         async function changeLanguage() {
             const lang = document.getElementById('language-select').value;
@@ -689,39 +693,37 @@
         // Function to request mobile clinic
         function requestMobileClinic() {
             const location = document.getElementById('user-location').value;
-            const service = document.getElementById('service-type').value;
+            const serviceType = document.getElementById('service-type').value;
             const date = document.getElementById('preferred-date').value;
-            
-            if (!location) {
-                alert('Please enter your location');
+
+            if (!location || !date) {
+                alert('Please fill in all required fields');
                 return;
             }
-            
-            // Simulate API call to request mobile clinic
-            setTimeout(() => {
-                alert(`Mobile clinic requested for ${service} service at ${location} on ${date}. We will contact you soon with confirmation.`);
-                loadMobileClinicMap(location);
-            }, 1000);
-        }
 
-        // Function to load mobile clinic map
-        function loadMobileClinicMap(location) {
-            // In a real implementation, this would use a mapping API like Google Maps
-            console.log(`Loading map for location: ${location}`);
-            // For demo purposes, we'll just log the action
-            
-            // Simulated map loading
-            const mapElement = document.getElementById('map');
-            mapElement.innerHTML = `<img src="/api/placeholder/800/400" alt="Map showing mobile clinic route to ${location}" style="width: 100%; height: 400px; object-fit: cover;">
-                                    <div style="margin-top: 1rem; padding: 1rem; background-color: #e3f2fd; border-radius: 8px;">
-                                        <h4>Mobile Clinic Schedule for ${location}</h4>
-                                        <p>Our mobile clinic will visit your area on the following dates:</p>
-                                        <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                            <li>Monday, March 17, 2025 - 9:00 AM to 4:00 PM</li>
-                                            <li>Thursday, March 20, 2025 - 10:00 AM to 5:00 PM</li>
-                                            <li>Monday, March 24, 2025 - 9:00 AM to 4:00 PM</li>
-                                        </ul>
-                                    </div>`;
+            fetch('/api/request-mobile-clinic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    location: location,
+                    serviceType: serviceType,
+                    date: date
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Mobile clinic request confirmed!\nTracking ID: ${data.trackingId}\nEstimated arrival: ${data.estimatedArrival}`);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to request mobile clinic. Please try again later.');
+            });
         }
 
         // Function to connect to nearest emergency service
@@ -729,13 +731,29 @@
             const location = document.getElementById('emergency-location').value;
             
             if (!location) {
-                alert('Please enter your location for faster emergency response');
+                alert('Please enter your location for emergency services');
                 return;
             }
             
-            // Simulate emergency connection
-            alert(`Emergency services notified! Connecting you to the nearest emergency service for ${location}. Please stay on the line.`);
-            // In a real implementation, this would connect to a real emergency service
+            fetch('/api/emergency-connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ location })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Emergency services alerted!\nNearest facility: ${data.nearestService}\nETA: ${data.estimatedResponse}\nEmergency ID: ${data.emergencyId}`);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to connect to emergency services. Please call our emergency hotline directly.');
+            });
         }
 
         // Function to find nearby facilities
@@ -749,57 +767,52 @@
                 return;
             }
             
-            // Simulate API call to find nearby facilities
-            const facilitiesMap = document.getElementById('facilities-map');
+            fetch(`/api/nearby-facilities?location=${encodeURIComponent(location)}&type=${facilityType}&radius=${radius}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayFacilities(data.facilities);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch nearby facilities. Please try again later.');
+            });
+        }
+
+        // Function to display facilities on the page
+        function displayFacilities(facilities) {
             const facilitiesList = document.getElementById('facilities-list');
-            
-            facilitiesMap.innerHTML = `<img src="/api/placeholder/800/400" alt="Map showing healthcare facilities near ${location}" style="width: 100%; height: 400px; object-fit: cover;">`;
-            
-            // Simulated facilities data
-            const facilities = [
-                { name: "Community Health Center", type: "health-center", distance: "0.8 km", address: "123 Main St", phone: "555-1234" },
-                { name: "City Hospital", type: "hospital", distance: "2.3 km", address: "456 Oak Ave", phone: "555-5678" },
-                { name: "MediPlus Pharmacy", type: "pharmacy", distance: "0.5 km", address: "789 Elm St", phone: "555-9012" },
-                { name: "Family Care Clinic", type: "clinic", distance: "1.7 km", address: "321 Pine Rd", phone: "555-3456" }
-            ];
-            
-            // Filter facilities based on type
-            let filteredFacilities = facilities;
-            if (facilityType !== 'all') {
-                filteredFacilities = facilities.filter(f => f.type === facilityType);
+            facilitiesList.innerHTML = '';
+
+            if (facilities.length === 0) {
+                facilitiesList.innerHTML = '<p>No facilities found in the selected area.</p>';
+                return;
             }
-            
-            // Render facilities list
-            if (filteredFacilities.length === 0) {
-                facilitiesList.innerHTML = `<p>No ${facilityType} facilities found within ${radius} km of ${location}.</p>`;
-            } else {
-                let html = `<h3>Facilities near ${location} (within ${radius} km)</h3>
-                           <div class="card-container">`;
-                           
-                filteredFacilities.forEach(facility => {
-                    html += `
-                        <div class="card">
-                            <div class="card-content">
-                                <h3 class="card-title">${facility.name}</h3>
-                                <p><strong>Type:</strong> ${facility.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                                <p><strong>Distance:</strong> ${facility.distance}</p>
-                                <p><strong>Address:</strong> ${facility.address}</p>
-                                <p><strong>Phone:</strong> ${facility.phone}</p>
-                                <a href="#" class="btn" onclick="getDirections('${facility.address}')">Get Directions</a>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += `</div>`;
-                facilitiesList.innerHTML = html;
-            }
+
+            facilities.forEach(facility => {
+                const facilityCard = document.createElement('div');
+                facilityCard.className = 'card';
+                facilityCard.innerHTML = `
+                    <div class="card-content">
+                        <h3 class="card-title">${facility.name}</h3>
+                        <p><strong>Type:</strong> ${facility.type}</p>
+                        <p><strong>Address:</strong> ${facility.address}</p>
+                        <p><strong>Phone:</strong> ${facility.phone}</p>
+                        <p><strong>Emergency Services:</strong> ${facility.emergency ? 'Yes' : 'No'}</p>
+                        <button class="btn" onclick="getDirections('${facility.address}')">Get Directions</button>
+                    </div>
+                `;
+                facilitiesList.appendChild(facilityCard);
+            });
         }
 
         // Function to get directions
         function getDirections(address) {
-            alert(`Getting directions to: ${address}`);
-            // In a real implementation, this would use a mapping API
+            // Open Google Maps in a new tab with the address
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
         }
 
         // Function to close notification
@@ -821,115 +834,26 @@
             const phone = document.getElementById('phone').value;
             const message = document.getElementById('message').value;
             
-            // Simulate form submission
-            alert(`Thank you ${name}! Your message has been sent. We will contact you at ${email} or ${phone} shortly.`);
-            
-            // Clear form
-            document.getElementById('contact-form').reset();
-        });
-    </script>
-
-    <Node.js Backend Code (for reference - would be in a separate file in a real application) -->
-    <script type="application/javascript">
-        
-        // This code represents what would be in your server.js file
-        // It's included here for reference only and would not run in the browser
-        
-        const express = require('express');
-        const bodyParser = require('body-parser');
-        const path = require('path');
-        
-        const app = express();
-        const PORT = process.env.PORT || 3000;
-        
-        // Middleware
-        app.use(bodyParser.json());
-        app.use(bodyParser.urlencoded({ extended: true }));
-        app.use(express.static(path.join(__dirname, 'public')));
-        
-        // API Routes
-        
-        // Get mobile clinic schedule
-        app.post('/api/mobile-clinic', (req, res) => {
-            const { location, service, date } = req.body;
-            
-            // In a real app, this would query a database
-            const schedule = {
-                status: 'success',
-                message: 'Mobile clinic scheduled',
-                details: {
-                    location: location,
-                    service: service,
-                    date: date,
-                    confirmation: 'MCLC-' + Math.floor(Math.random() * 10000)
+            fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, phone, message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Thank you ${name}! Your message has been sent. We will contact you shortly.`);
+                    document.getElementById('contact-form').reset();
+                } else {
+                    alert('Error: ' + data.message);    
                 }
-            };
-            
-            res.json(schedule);
-        });
-        
-        // Get nearby facilities
-        app.get('/api/facilities', (req, res) => {
-            const { location, type, radius } = req.query;
-            
-            // In a real app, this would query a database or external API
-            const facilities = [
-                { name: "Community Health Center", type: "health-center", distance: "0.8 km", address: "123 Main St", phone: "555-1234" },
-                { name: "City Hospital", type: "hospital", distance: "2.3 km", address: "456 Oak Ave", phone: "555-5678" },
-                { name: "MediPlus Pharmacy", type: "pharmacy", distance: "0.5 km", address: "789 Elm St", phone: "555-9012" },
-                { name: "Family Care Clinic", type: "clinic", distance: "1.7 km", address: "321 Pine Rd", phone: "555-3456" }
-            ];
-            
-            // Filter by type if specified
-            let results = facilities;
-            if (type && type !== 'all') {
-                results = facilities.filter(f => f.type === type);
-            }
-            
-            res.json({
-                status: 'success',
-                location: location,
-                radius: radius,
-                results: results
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to send message. Please try again later.');
             });
-        });
-        
-        // Handle emergency requests
-        app.post('/api/emergency', (req, res) => {
-            const { location } = req.body;
-            
-            // In a real app, this would contact emergency services
-            const response = {
-                status: 'success',
-                message: 'Emergency services notified',
-                details: {
-                    location: location,
-                    responder: 'City Emergency Services',
-                    eta: '10-15 minutes',
-                    reference: 'EM-' + Math.floor(Math.random() * 10000)
-                }
-            };
-            
-            res.json(response);
-        });
-        
-        // Handle contact form
-        app.post('/api/contact', (req, res) => {
-            const { name, email, phone, message } = req.body;
-            
-            // In a real app, this would store the message and/or send an email
-            const response = {
-                status: 'success',
-                message: 'Contact form submitted',
-                reference: 'CNT-' + Math.floor(Math.random() * 10000)
-            };
-            
-            res.json(response);
-        });
-        
-        // Start server
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
         });
     </script>
 </body>
