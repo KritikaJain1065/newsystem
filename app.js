@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 
 const app = express();
-const url="https://medi-assist.onrender.com"
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
